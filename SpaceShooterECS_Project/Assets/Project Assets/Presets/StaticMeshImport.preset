@@ -1,0 +1,525 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!181963792 &2655988077585873504
+Preset:
+  m_ObjectHideFlags: 0
+  m_PrefabParentObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 0}
+  m_Name: StaticMeshImport
+  m_TargetType:
+    m_NativeTypeID: 1041
+    m_ManagedTypePPtr: {fileID: 0}
+    m_ManagedTypeFallback: 
+  m_Properties:
+  - target: {fileID: 0}
+    propertyPath: m_Name
+    value: 
+    objectReference: {fileID: 0}
+  - target: {fileID: 0}
+    propertyPath: m_FileIDToRecycleName.Array.size
+    value: 18
+    objectReference: {fileID: 0}
+  - target: {fileID: 0}
+    propertyPath: m_FileIDToRecycleName.Array.data[0].first
+    value: 100000
+    objectReference: {fileID: 0}
+  - target: {fileID: 0}
+    propertyPath: m_FileIDToRecycleName.Array.data[0].second
+    value: //RootNode
+    objectReference: {fileID: 0}
+  - target: {fileID: 0}
+    propertyPath: m_FileIDToRecycleName.Array.data[1].first
+    value: 100002
+    objectReference: {fileID: 0}
+  - target: {fileID: 0}
+    propertyPath: m_FileIDToRecycleName.Array.data[1].second
+    value: //RootNode
+    objectReference: {fileID: 0}
+  - target: {fileID: 0}
+    propertyPath: m_FileIDToRecycleName.Array.data[2].first
+    value: 100004
+    objectReference: {fileID: 0}
+  - target: {fileID: 0}
+    propertyPath: m_FileIDToRecycleName.Array.data[2].second
+    value: //RootNode
+    objectReference: {fileID: 0}
+  - target: {fileID: 0}
+    propertyPath: m_FileIDToRecycleName.Array.data[3].first
+    value: 400000
+    objectReference: {fileID: 0}
+  - target: {fileID: 0}
+    propertyPath: m_FileIDToRecycleName.Array.data[3].second
+    value: //RootNode
+    objectReference: {fileID: 0}
+  - target: {fileID: 0}
+    propertyPath: m_FileIDToRecycleName.Array.data[4].first
+    value: 400002
+    objectReference: {fileID: 0}
+  - target: {fileID: 0}
+    propertyPath: m_FileIDToRecycleName.Array.data[4].second
+    value: //RootNode
+    objectReference: {fileID: 0}
+  - target: {fileID: 0}
+    propertyPath: m_FileIDToRecycleName.Array.data[5].first
+    value: 400004
+    objectReference: {fileID: 0}
+  - target: {fileID: 0}
+    propertyPath: m_FileIDToRecycleName.Array.data[5].second
+    value: //RootNode
+    objectReference: {fileID: 0}
+  - target: {fileID: 0}
+    propertyPath: m_FileIDToRecycleName.Array.data[6].first
+    value: 2100000
+    objectReference: {fileID: 0}
+  - target: {fileID: 0}
+    propertyPath: m_FileIDToRecycleName.Array.data[6].second
+    value: Athena
+    objectReference: {fileID: 0}
+  - target: {fileID: 0}
+    propertyPath: m_FileIDToRecycleName.Array.data[7].first
+    value: 2100002
+    objectReference: {fileID: 0}
+  - target: {fileID: 0}
+    propertyPath: m_FileIDToRecycleName.Array.data[7].second
+    value: Athena
+    objectReference: {fileID: 0}
+  - target: {fileID: 0}
+    propertyPath: m_FileIDToRecycleName.Array.data[8].first
+    value: 2100004
+    objectReference: {fileID: 0}
+  - target: {fileID: 0}
+    propertyPath: m_FileIDToRecycleName.Array.data[8].second
+    value: Athena
+    objectReference: {fileID: 0}
+  - target: {fileID: 0}
+    propertyPath: m_FileIDToRecycleName.Array.data[9].first
+    value: 2300000
+    objectReference: {fileID: 0}
+  - target: {fileID: 0}
+    propertyPath: m_FileIDToRecycleName.Array.data[9].second
+    value: //RootNode
+    objectReference: {fileID: 0}
+  - target: {fileID: 0}
+    propertyPath: m_FileIDToRecycleName.Array.data[10].first
+    value: 2300002
+    objectReference: {fileID: 0}
+  - target: {fileID: 0}
+    propertyPath: m_FileIDToRecycleName.Array.data[10].second
+    value: //RootNode
+    objectReference: {fileID: 0}
+  - target: {fileID: 0}
+    propertyPath: m_FileIDToRecycleName.Array.data[11].first
+    value: 2300004
+    objectReference: {fileID: 0}
+  - target: {fileID: 0}
+    propertyPath: m_FileIDToRecycleName.Array.data[11].second
+    value: //RootNode
+    objectReference: {fileID: 0}
+  - target: {fileID: 0}
+    propertyPath: m_FileIDToRecycleName.Array.data[12].first
+    value: 3300000
+    objectReference: {fileID: 0}
+  - target: {fileID: 0}
+    propertyPath: m_FileIDToRecycleName.Array.data[12].second
+    value: //RootNode
+    objectReference: {fileID: 0}
+  - target: {fileID: 0}
+    propertyPath: m_FileIDToRecycleName.Array.data[13].first
+    value: 3300002
+    objectReference: {fileID: 0}
+  - target: {fileID: 0}
+    propertyPath: m_FileIDToRecycleName.Array.data[13].second
+    value: //RootNode
+    objectReference: {fileID: 0}
+  - target: {fileID: 0}
+    propertyPath: m_FileIDToRecycleName.Array.data[14].first
+    value: 3300004
+    objectReference: {fileID: 0}
+  - target: {fileID: 0}
+    propertyPath: m_FileIDToRecycleName.Array.data[14].second
+    value: //RootNode
+    objectReference: {fileID: 0}
+  - target: {fileID: 0}
+    propertyPath: m_FileIDToRecycleName.Array.data[15].first
+    value: 4300000
+    objectReference: {fileID: 0}
+  - target: {fileID: 0}
+    propertyPath: m_FileIDToRecycleName.Array.data[15].second
+    value: Athena
+    objectReference: {fileID: 0}
+  - target: {fileID: 0}
+    propertyPath: m_FileIDToRecycleName.Array.data[16].first
+    value: 4300002
+    objectReference: {fileID: 0}
+  - target: {fileID: 0}
+    propertyPath: m_FileIDToRecycleName.Array.data[16].second
+    value: Athena
+    objectReference: {fileID: 0}
+  - target: {fileID: 0}
+    propertyPath: m_FileIDToRecycleName.Array.data[17].first
+    value: 4300004
+    objectReference: {fileID: 0}
+  - target: {fileID: 0}
+    propertyPath: m_FileIDToRecycleName.Array.data[17].second
+    value: Athena
+    objectReference: {fileID: 0}
+  - target: {fileID: 0}
+    propertyPath: m_ExternalObjects.Array.size
+    value: 0
+    objectReference: {fileID: 0}
+  - target: {fileID: 0}
+    propertyPath: m_ImportMaterials
+    value: 1
+    objectReference: {fileID: 0}
+  - target: {fileID: 0}
+    propertyPath: m_SupportsEmbeddedMaterials
+    value: 1
+    objectReference: {fileID: 0}
+  - target: {fileID: 0}
+    propertyPath: m_MaterialName
+    value: 1
+    objectReference: {fileID: 0}
+  - target: {fileID: 0}
+    propertyPath: m_MaterialSearch
+    value: 2
+    objectReference: {fileID: 0}
+  - target: {fileID: 0}
+    propertyPath: m_MaterialLocation
+    value: 1
+    objectReference: {fileID: 0}
+  - target: {fileID: 0}
+    propertyPath: m_Materials.Array.size
+    value: 1
+    objectReference: {fileID: 0}
+  - target: {fileID: 0}
+    propertyPath: m_Materials.Array.data[0].type
+    value: UnityEngine:Material
+    objectReference: {fileID: 0}
+  - target: {fileID: 0}
+    propertyPath: m_Materials.Array.data[0].assembly
+    value: UnityEngine.CoreModule
+    objectReference: {fileID: 0}
+  - target: {fileID: 0}
+    propertyPath: m_Materials.Array.data[0].name
+    value: Athena
+    objectReference: {fileID: 0}
+  - target: {fileID: 0}
+    propertyPath: m_LegacyGenerateAnimations
+    value: 4
+    objectReference: {fileID: 0}
+  - target: {fileID: 0}
+    propertyPath: m_BakeSimulation
+    value: 0
+    objectReference: {fileID: 0}
+  - target: {fileID: 0}
+    propertyPath: m_ResampleCurves
+    value: 1
+    objectReference: {fileID: 0}
+  - target: {fileID: 0}
+    propertyPath: m_OptimizeGameObjects
+    value: 0
+    objectReference: {fileID: 0}
+  - target: {fileID: 0}
+    propertyPath: m_MotionNodeName
+    value: 
+    objectReference: {fileID: 0}
+  - target: {fileID: 0}
+    propertyPath: m_RigImportErrors
+    value: 
+    objectReference: {fileID: 0}
+  - target: {fileID: 0}
+    propertyPath: m_RigImportWarnings
+    value: 
+    objectReference: {fileID: 0}
+  - target: {fileID: 0}
+    propertyPath: m_AnimationImportErrors
+    value: 
+    objectReference: {fileID: 0}
+  - target: {fileID: 0}
+    propertyPath: m_AnimationImportWarnings
+    value: 
+    objectReference: {fileID: 0}
+  - target: {fileID: 0}
+    propertyPath: m_AnimationRetargetingWarnings
+    value: 
+    objectReference: {fileID: 0}
+  - target: {fileID: 0}
+    propertyPath: m_AnimationDoRetargetingWarnings
+    value: 0
+    objectReference: {fileID: 0}
+  - target: {fileID: 0}
+    propertyPath: m_ImportAnimatedCustomProperties
+    value: 0
+    objectReference: {fileID: 0}
+  - target: {fileID: 0}
+    propertyPath: m_ImportConstraints
+    value: 0
+    objectReference: {fileID: 0}
+  - target: {fileID: 0}
+    propertyPath: m_AnimationCompression
+    value: 1
+    objectReference: {fileID: 0}
+  - target: {fileID: 0}
+    propertyPath: m_AnimationRotationError
+    value: 0.5
+    objectReference: {fileID: 0}
+  - target: {fileID: 0}
+    propertyPath: m_AnimationPositionError
+    value: 0.5
+    objectReference: {fileID: 0}
+  - target: {fileID: 0}
+    propertyPath: m_AnimationScaleError
+    value: 0.5
+    objectReference: {fileID: 0}
+  - target: {fileID: 0}
+    propertyPath: m_AnimationWrapMode
+    value: 0
+    objectReference: {fileID: 0}
+  - target: {fileID: 0}
+    propertyPath: m_ExtraExposedTransformPaths.Array.size
+    value: 0
+    objectReference: {fileID: 0}
+  - target: {fileID: 0}
+    propertyPath: m_ExtraUserProperties.Array.size
+    value: 0
+    objectReference: {fileID: 0}
+  - target: {fileID: 0}
+    propertyPath: m_ClipAnimations.Array.size
+    value: 0
+    objectReference: {fileID: 0}
+  - target: {fileID: 0}
+    propertyPath: m_IsReadable
+    value: 0
+    objectReference: {fileID: 0}
+  - target: {fileID: 0}
+    propertyPath: m_LODScreenPercentages.Array.size
+    value: 0
+    objectReference: {fileID: 0}
+  - target: {fileID: 0}
+    propertyPath: m_GlobalScale
+    value: 1
+    objectReference: {fileID: 0}
+  - target: {fileID: 0}
+    propertyPath: m_MeshCompression
+    value: 0
+    objectReference: {fileID: 0}
+  - target: {fileID: 0}
+    propertyPath: m_AddColliders
+    value: 0
+    objectReference: {fileID: 0}
+  - target: {fileID: 0}
+    propertyPath: m_ImportVisibility
+    value: 0
+    objectReference: {fileID: 0}
+  - target: {fileID: 0}
+    propertyPath: m_ImportBlendShapes
+    value: 0
+    objectReference: {fileID: 0}
+  - target: {fileID: 0}
+    propertyPath: m_ImportCameras
+    value: 0
+    objectReference: {fileID: 0}
+  - target: {fileID: 0}
+    propertyPath: m_ImportLights
+    value: 0
+    objectReference: {fileID: 0}
+  - target: {fileID: 0}
+    propertyPath: swapUVChannels
+    value: 0
+    objectReference: {fileID: 0}
+  - target: {fileID: 0}
+    propertyPath: generateSecondaryUV
+    value: 0
+    objectReference: {fileID: 0}
+  - target: {fileID: 0}
+    propertyPath: m_UseFileUnits
+    value: 1
+    objectReference: {fileID: 0}
+  - target: {fileID: 0}
+    propertyPath: optimizeMeshForGPU
+    value: 1
+    objectReference: {fileID: 0}
+  - target: {fileID: 0}
+    propertyPath: keepQuads
+    value: 0
+    objectReference: {fileID: 0}
+  - target: {fileID: 0}
+    propertyPath: weldVertices
+    value: 1
+    objectReference: {fileID: 0}
+  - target: {fileID: 0}
+    propertyPath: m_PreserveHierarchy
+    value: 0
+    objectReference: {fileID: 0}
+  - target: {fileID: 0}
+    propertyPath: indexFormat
+    value: 0
+    objectReference: {fileID: 0}
+  - target: {fileID: 0}
+    propertyPath: secondaryUVAngleDistortion
+    value: 8
+    objectReference: {fileID: 0}
+  - target: {fileID: 0}
+    propertyPath: secondaryUVAreaDistortion
+    value: 15.000001
+    objectReference: {fileID: 0}
+  - target: {fileID: 0}
+    propertyPath: secondaryUVHardAngle
+    value: 88
+    objectReference: {fileID: 0}
+  - target: {fileID: 0}
+    propertyPath: secondaryUVPackMargin
+    value: 4
+    objectReference: {fileID: 0}
+  - target: {fileID: 0}
+    propertyPath: m_UseFileScale
+    value: 1
+    objectReference: {fileID: 0}
+  - target: {fileID: 0}
+    propertyPath: m_FileScale
+    value: 0.01
+    objectReference: {fileID: 0}
+  - target: {fileID: 0}
+    propertyPath: normalSmoothAngle
+    value: 60
+    objectReference: {fileID: 0}
+  - target: {fileID: 0}
+    propertyPath: normalImportMode
+    value: 0
+    objectReference: {fileID: 0}
+  - target: {fileID: 0}
+    propertyPath: tangentImportMode
+    value: 3
+    objectReference: {fileID: 0}
+  - target: {fileID: 0}
+    propertyPath: normalCalculationMode
+    value: 4
+    objectReference: {fileID: 0}
+  - target: {fileID: 0}
+    propertyPath: m_ImportedTakeInfos.Array.size
+    value: 0
+    objectReference: {fileID: 0}
+  - target: {fileID: 0}
+    propertyPath: m_ReferencedClips.Array.size
+    value: 0
+    objectReference: {fileID: 0}
+  - target: {fileID: 0}
+    propertyPath: m_ImportedRoots.Array.size
+    value: 1
+    objectReference: {fileID: 0}
+  - target: {fileID: 0}
+    propertyPath: m_ImportedRoots.Array.data[0]
+    value: 
+    objectReference: {fileID: 100000, guid: d7649579deecd0b4bb90e80c7ffb9bb0, type: 3}
+  - target: {fileID: 0}
+    propertyPath: m_HasExtraRoot
+    value: 0
+    objectReference: {fileID: 0}
+  - target: {fileID: 0}
+    propertyPath: m_HasEmbeddedTextures
+    value: 0
+    objectReference: {fileID: 0}
+  - target: {fileID: 0}
+    propertyPath: m_ImportAnimation
+    value: 0
+    objectReference: {fileID: 0}
+  - target: {fileID: 0}
+    propertyPath: m_CopyAvatar
+    value: 0
+    objectReference: {fileID: 0}
+  - target: {fileID: 0}
+    propertyPath: m_HumanDescription.m_Human.Array.size
+    value: 0
+    objectReference: {fileID: 0}
+  - target: {fileID: 0}
+    propertyPath: m_HumanDescription.m_Skeleton.Array.size
+    value: 0
+    objectReference: {fileID: 0}
+  - target: {fileID: 0}
+    propertyPath: m_HumanDescription.m_ArmTwist
+    value: 0.5
+    objectReference: {fileID: 0}
+  - target: {fileID: 0}
+    propertyPath: m_HumanDescription.m_ForeArmTwist
+    value: 0.5
+    objectReference: {fileID: 0}
+  - target: {fileID: 0}
+    propertyPath: m_HumanDescription.m_UpperLegTwist
+    value: 0.5
+    objectReference: {fileID: 0}
+  - target: {fileID: 0}
+    propertyPath: m_HumanDescription.m_LegTwist
+    value: 0.5
+    objectReference: {fileID: 0}
+  - target: {fileID: 0}
+    propertyPath: m_HumanDescription.m_ArmStretch
+    value: 0.05
+    objectReference: {fileID: 0}
+  - target: {fileID: 0}
+    propertyPath: m_HumanDescription.m_LegStretch
+    value: 0.05
+    objectReference: {fileID: 0}
+  - target: {fileID: 0}
+    propertyPath: m_HumanDescription.m_FeetSpacing
+    value: 0
+    objectReference: {fileID: 0}
+  - target: {fileID: 0}
+    propertyPath: m_HumanDescription.m_RootMotionBoneName
+    value: 
+    objectReference: {fileID: 0}
+  - target: {fileID: 0}
+    propertyPath: m_HumanDescription.m_RootMotionBoneRotation.x
+    value: 0
+    objectReference: {fileID: 0}
+  - target: {fileID: 0}
+    propertyPath: m_HumanDescription.m_RootMotionBoneRotation.y
+    value: 0
+    objectReference: {fileID: 0}
+  - target: {fileID: 0}
+    propertyPath: m_HumanDescription.m_RootMotionBoneRotation.z
+    value: 0
+    objectReference: {fileID: 0}
+  - target: {fileID: 0}
+    propertyPath: m_HumanDescription.m_RootMotionBoneRotation.w
+    value: 1
+    objectReference: {fileID: 0}
+  - target: {fileID: 0}
+    propertyPath: m_HumanDescription.m_HasTranslationDoF
+    value: 0
+    objectReference: {fileID: 0}
+  - target: {fileID: 0}
+    propertyPath: m_HumanDescription.m_HasExtraRoot
+    value: 0
+    objectReference: {fileID: 0}
+  - target: {fileID: 0}
+    propertyPath: m_HumanDescription.m_SkeletonHasParents
+    value: 1
+    objectReference: {fileID: 0}
+  - target: {fileID: 0}
+    propertyPath: m_LastHumanDescriptionAvatarSource
+    value: 
+    objectReference: {fileID: 0}
+  - target: {fileID: 0}
+    propertyPath: m_AnimationType
+    value: 0
+    objectReference: {fileID: 0}
+  - target: {fileID: 0}
+    propertyPath: m_HumanoidOversampling
+    value: 1
+    objectReference: {fileID: 0}
+  - target: {fileID: 0}
+    propertyPath: m_AdditionalBone
+    value: 0
+    objectReference: {fileID: 0}
+  - target: {fileID: 0}
+    propertyPath: m_UserData
+    value: 
+    objectReference: {fileID: 0}
+  - target: {fileID: 0}
+    propertyPath: m_AssetBundleName
+    value: 
+    objectReference: {fileID: 0}
+  - target: {fileID: 0}
+    propertyPath: m_AssetBundleVariant
+    value: 
+    objectReference: {fileID: 0}
