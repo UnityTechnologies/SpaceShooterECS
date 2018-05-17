@@ -1,10 +1,10 @@
 ﻿using Unity.Collections;
 using Unity.Entities;
-using Unity.Jobs;
+using Unity.Mathematics;
+using Unity.Transforms;
 using UnityEngine;
-using UnityEngine.Jobs;
 
-namespace Shooter.JobSystem
+namespace Shooter.ECSwithJobs
 {
     public class GameManager : MonoBehaviour
     {
@@ -40,63 +40,37 @@ namespace Shooter.JobSystem
         }
         #endregion
 
-        TransformAccessArray transforms;
-        MovementJob moveJob;
-        JobHandle moveHandle;
-
-
-        void OnDisable()
-        {
-            moveHandle.Complete();
-            transforms.Dispose();
-        }
+        EntityManager manager;
+        
 
         void Start()
         {
             fps = GetComponent<FPS>();
-            transforms = new TransformAccessArray(0, -1);
 
+            manager = World.Active.GetOrCreateManager<EntityManager>();
             AddShips(enemyShipCount);
         }
 
         void Update()
         {
-            moveHandle.Complete();
-
             if (Input.GetKeyDown("space"))
                 AddShips(enemyShipIncremement);
-
-            moveJob = new MovementJob()
-            {
-                moveSpeed = enemySpeed,
-                topBound = topBound,
-                bottomBound = bottomBound,
-                deltaTime = Time.deltaTime
-            };
-
-            moveHandle = moveJob.Schedule(transforms);
-
-            JobHandle.ScheduleBatchedJobs();
         }
 
         void AddShips(int amount)
         {
-            moveHandle.Complete();
-
-            transforms.capacity = transforms.length + amount;
+            NativeArray<Entity> entities = new NativeArray<Entity>(amount, Allocator.Temp);
+            manager.Instantiate(enemyShipPrefab, entities);
 
             for (int i = 0; i < amount; i++)
             {
                 float xVal = Random.Range(leftBound, rightBound);
                 float zVal = Random.Range(0f, 10f);
-
-                Vector3 pos = new Vector3(xVal, 0f, zVal + topBound);
-                Quaternion rot = Quaternion.Euler(0f, 180f, 0f);
-
-                var obj = Instantiate(enemyShipPrefab, pos, rot) as GameObject;
-
-                transforms.Add(obj.transform);
+                manager.SetComponentData(entities[i], new Position { Value = new float3(xVal, 0f, topBound + zVal) });
+                manager.SetComponentData(entities[i], new Rotation { Value = new quaternion(0, 1, 0, 0) });
+                manager.SetComponentData(entities[i], new MoveSpeed { Value = enemySpeed });
             }
+            entities.Dispose();
 
             count += amount;
             fps.SetElementCount(count);

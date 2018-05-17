@@ -7,40 +7,33 @@ using UnityEngine;
 
 namespace Shooter.ECS
 {
-    public class MovementSystem : JobComponentSystem 
+    public class MovementSystem : ComponentSystem 
 	{
-        [ComputeJobOptimization]
-        struct MovementJob : IJobProcessComponentData<Position, Rotation, MoveSpeed>
-        {
-            public float topBound;
-            public float bottomBound;
-            public float deltaTime;
+		struct EnemyGroup
+		{
+			public ComponentDataArray<Position> positions;
+			[ReadOnly] public ComponentDataArray<Rotation> rotations;
+			[ReadOnly] public ComponentDataArray<MoveSpeed> moveSpeeds;
+			public int Length;
+		}
+		[Inject]
+		EnemyGroup enemies;
 
-            public void Execute(ref Position position, [ReadOnly] ref Rotation rotation, [ReadOnly] ref MoveSpeed speed)
-            {
-                float3 value = position.Value;
+		protected override void OnUpdate()
+		{
+			for (int i = 0; i < enemies.Length; i++)
+			{
+				Position position = enemies.positions[i];
+				Rotation rotation = enemies.rotations[i];
+				MoveSpeed speed = enemies.moveSpeeds[i];
 
-                value += deltaTime * speed.Value * math.forward(rotation.Value);
+				position.Value += Time.deltaTime * speed.Value * math.forward(rotation.Value);
 
-                if (value.z < bottomBound)
-                    value.z = topBound;
+				if (position.Value.z < GameManager.GM.bottomBound)
+					position.Value.z = GameManager.GM.topBound;
 
-                position.Value = value;
-            }
-        }
-
-        protected override JobHandle OnUpdate(JobHandle inputDeps)
-        {
-            MovementJob moveJob = new MovementJob
-            {
-                topBound = GameManager.GM.topBound,
-                bottomBound = GameManager.GM.bottomBound,
-                deltaTime = Time.deltaTime
-            };
-
-            JobHandle moveHandle = moveJob.Schedule(this, 64, inputDeps);
-
-            return moveHandle;
-        }
+				enemies.positions[i] = position;
+			}
+		}
     }
 }
