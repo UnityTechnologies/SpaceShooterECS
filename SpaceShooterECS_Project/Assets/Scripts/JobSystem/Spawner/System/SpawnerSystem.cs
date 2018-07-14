@@ -1,4 +1,5 @@
-﻿using Unity.Jobs;
+﻿using Unity.Burst;
+using Unity.Jobs;
 using UnityEngine;
 using Unity.Entities;
 using Unity.Mathematics;
@@ -17,7 +18,7 @@ namespace ECS_SpaceShooterDemo
             public ComponentDataArray<SpawnerSpawnData> spawnerSpawnDataArray;
 
             public SubtractiveComponent<EntityPrefabData> prefabData;
-            public int Length; //required variable
+            public readonly int Length; //required variable
         }
         [Inject]
         SpawnerDataGroup spawnerDataGroup;
@@ -26,7 +27,7 @@ namespace ECS_SpaceShooterDemo
         {
             public float spawnYPosition;
             public int hazardIndexToSpawn;
-            public bool1 isBackgroundSpawn;
+            public int isBackgroundSpawn;
         }
 
         private NativeList<SpawnerSpawnInfo> spawnerSpawnInfoList;
@@ -108,7 +109,7 @@ namespace ECS_SpaceShooterDemo
                 float3 spawnPositionAlly = new Vector3(Random.Range(cameraPosition.x - halfFrustumWidth, cameraPosition.x + halfFrustumWidth), yPosition, cameraPosition.z - halfFrustumHeight);
 
                 //Spawn the hazard using the index we randomnly generated
-                Entity newHazardEntity = EntityManager.Instantiate(MonoBehaviourECSBridge.Instance.GetPrefabHazardEntity(spawnInfo.hazardIndexToSpawn, spawnInfo.isBackgroundSpawn));
+                Entity newHazardEntity = EntityManager.Instantiate(MonoBehaviourECSBridge.Instance.GetPrefabHazardEntity(spawnInfo.hazardIndexToSpawn, spawnInfo.isBackgroundSpawn == 1));
                 //Make sure to remove the prefab "tag" data component
                 EntityManager.RemoveComponent<EntityPrefabData>(newHazardEntity);
 

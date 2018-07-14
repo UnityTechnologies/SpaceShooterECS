@@ -6,6 +6,7 @@ using UnityEngine;
 using UnityEngine.Assertions;
 using Unity.Transforms;
 using UnityEngine.Experimental.PlayerLoop;
+using Unity.Burst;
 using Unity.Jobs;
 using Unity.Collections;
 using Unity.Jobs.LowLevel.Unsafe;
@@ -69,7 +70,7 @@ namespace ECS_SpaceShooterDemo
 	    }
 
 
-	    [ComputeJobOptimizationAttribute(Accuracy.Med, Support.Relaxed)]
+	    [BurstCompileAttribute(Accuracy.Med, Support.Relaxed)]
 	    unsafe struct CopyMatricesJob : IJob
 	    {
 	        [NativeDisableUnsafePtrRestriction]

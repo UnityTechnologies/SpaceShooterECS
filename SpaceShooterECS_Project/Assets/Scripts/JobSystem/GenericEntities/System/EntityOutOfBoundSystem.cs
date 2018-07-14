@@ -1,4 +1,5 @@
-﻿using Unity.Jobs;
+﻿using Unity.Burst;
+using Unity.Jobs;
 using UnityEngine;
 using Unity.Entities;
 using Unity.Collections;
@@ -25,14 +26,14 @@ namespace ECS_SpaceShooterDemo
 
             public SubtractiveComponent<PlayerMoveData> playerMoveData;  //don't get our players
             public SubtractiveComponent<EntityPrefabData> prefabData; //don't get our prefabs
-            public int Length; //required variable
+            public readonly int Length; //required variable
         }
         [Inject]
         EntityBoundDataGroup entityBoundDataGroup;
 
         //This job will add to a queue any entity outside of the view frustum (+ a safe zone)
         //The calculation assume a camera pointing down (no angle)
-        [ComputeJobOptimizationAttribute(Accuracy.Med, Support.Relaxed)]
+        [BurstCompileAttribute(Accuracy.Med, Support.Relaxed)]
         struct EntityOutOfBoundJob : IJobParallelFor
         {
             [ReadOnly]

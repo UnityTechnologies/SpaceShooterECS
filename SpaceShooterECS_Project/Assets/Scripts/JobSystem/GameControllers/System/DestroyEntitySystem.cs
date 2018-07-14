@@ -1,4 +1,5 @@
 ﻿using System.Collections;
+using Unity.Burst;
 using Unity.Jobs;
 using UnityEngine;
 using Unity.Entities;
@@ -141,7 +142,7 @@ namespace ECS_SpaceShooterDemo
         }
 
         //currently ExclusiveEntityTransaction is not supported by Burst
-        //[ComputeJobOptimizationAttribute(Accuracy.Med, Support.Relaxed)]
+        //[BurstCompileAttribute(Accuracy.Med, Support.Relaxed)]
         struct DestroyEntityJob : IJob
         {
             //We use an ExclusiveEntityTransaction to have access to the entity manager
@@ -165,7 +166,7 @@ namespace ECS_SpaceShooterDemo
         }
 
         //currently ExclusiveEntityTransaction is not supported by Burst
-        //[ComputeJobOptimizationAttribute(Accuracy.Med, Support.Relaxed)]
+        //[BurstCompileAttribute(Accuracy.Med, Support.Relaxed)]
         struct DestroyEntityWithLogicJob : IJob
         {
             //We use an ExclusiveEntityTransaction to have access to the entity manager

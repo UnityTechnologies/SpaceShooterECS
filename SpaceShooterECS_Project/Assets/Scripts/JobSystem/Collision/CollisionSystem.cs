@@ -1,4 +1,5 @@
-﻿using Unity.Jobs;
+﻿using Unity.Burst;
+using Unity.Jobs;
 using UnityEngine;
 using Unity.Entities;
 using Unity.Collections;
@@ -195,7 +196,7 @@ namespace ECS_SpaceShooterDemo
         }
 
 
-        [ComputeJobOptimizationAttribute(Accuracy.Med, Support.Relaxed)]
+        [BurstCompileAttribute(Accuracy.Med, Support.Relaxed)]
         struct FillCellJob : IJobParallelFor
         {
             [ReadOnly]
@@ -224,7 +225,7 @@ namespace ECS_SpaceShooterDemo
             }
         }
 
-        [ComputeJobOptimizationAttribute(Accuracy.Med, Support.Relaxed)]
+        [BurstCompileAttribute(Accuracy.Med, Support.Relaxed)]
         struct CollisionDetectJob : IJobParallelFor
         {
             [ReadOnly]
@@ -303,7 +304,7 @@ namespace ECS_SpaceShooterDemo
         }
 
 
-        [ComputeJobOptimizationAttribute(Accuracy.Med, Support.Relaxed)]
+        [BurstCompileAttribute(Accuracy.Med, Support.Relaxed)]
         struct AllocateCellsJob : IJob
         {
             public NativeMultiHashMap<int, HashMapData> outputCells;
@@ -320,7 +321,7 @@ namespace ECS_SpaceShooterDemo
         }
 
 
-        [ComputeJobOptimizationAttribute(Accuracy.Med, Support.Relaxed)]
+        [BurstCompileAttribute(Accuracy.Med, Support.Relaxed)]
         struct ClearCellsJob : IJob
         {
             [DeallocateOnJobCompletion]

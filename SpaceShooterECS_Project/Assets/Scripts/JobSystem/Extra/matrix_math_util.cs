@@ -19,11 +19,13 @@ namespace UnityEngine.ECS.MathUtils
         {
             float3x3 rot = LookRotationToMatrix(forward, up);
 
-            float4x4 matrix;
-            matrix.m0 = new float4(rot.m0, 0.0F);
-            matrix.m1 = new float4(rot.m1, 0.0F);
-            matrix.m2 = new float4(rot.m2, 0.0F);
-            matrix.m3 = new float4(position, 1.0F);
+            float4x4 matrix = new float4x4
+            {
+                c0 = new float4(rot.c0, 0.0F),
+                c1 = new float4(rot.c1, 0.0F),
+                c2 = new float4(rot.c2, 0.0F),
+                c3 = new float4(position, 1.0F),
+            };
 
             return matrix;
         }

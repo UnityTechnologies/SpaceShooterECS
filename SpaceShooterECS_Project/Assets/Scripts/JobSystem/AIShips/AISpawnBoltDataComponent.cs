@@ -1,4 +1,5 @@
-﻿using Unity.Jobs;
+﻿using Unity.Burst;
+using Unity.Jobs;
 using UnityEngine;
 using Unity.Entities;
 using Unity.Mathematics;

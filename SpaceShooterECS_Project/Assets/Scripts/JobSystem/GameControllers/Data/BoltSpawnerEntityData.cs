@@ -1,4 +1,5 @@
-﻿using Unity.Jobs;
+﻿using Unity.Burst;
+using Unity.Jobs;
 using UnityEngine;
 using Unity.Entities;
 using Unity.Mathematics;
@@ -17,7 +18,7 @@ namespace ECS_SpaceShooterDemo
     struct BoltSpawnerEntityDataGroup
     {
         public ComponentDataArray<BoltSpawnerEntityData> boltSpawnerEntityData;
-        public int Length;
+        public readonly int Length;
     }
 
 }

@@ -1,4 +1,5 @@
-﻿using Unity.Jobs;
+﻿using Unity.Burst;
+using Unity.Jobs;
 using UnityEngine;
 using Unity.Entities;
 using Unity.Mathematics;
@@ -11,14 +12,14 @@ namespace ECS_SpaceShooterDemo
     public struct UIData : IComponentData
     {
         public float score;
-        public bool1 gameOver;
-        public bool1 restart;
+        public int gameOver;
+        public int restart;
     }
 
     struct UIEntityDataGroup
     {
         public ComponentDataArray<UIData> uiEntityData;
-        public int Length;
+        public readonly int Length;
     }
 
 }

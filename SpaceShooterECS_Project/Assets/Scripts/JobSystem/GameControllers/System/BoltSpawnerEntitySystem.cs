@@ -1,4 +1,5 @@
 ﻿using System;
+using Unity.Burst;
 using Unity.Jobs;
 using UnityEngine;
 using Unity.Entities;
@@ -30,7 +31,7 @@ namespace ECS_SpaceShooterDemo
         Entity prefabPlayerBolt;
 
         //Jobs that will go over all newly spawned bolt and set their BoltMoveData values
-        [ComputeJobOptimizationAttribute(Accuracy.Med, Support.Relaxed)]
+        [BurstCompileAttribute(Accuracy.Med, Support.Relaxed)]
         struct SetAIBoltMoveDataJob : IJobParallelFor
         {
             //List of entities we spawned from

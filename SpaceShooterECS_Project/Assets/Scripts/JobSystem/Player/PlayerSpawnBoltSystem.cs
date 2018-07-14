@@ -1,4 +1,5 @@
-﻿using Unity.Jobs;
+﻿using Unity.Burst;
+using Unity.Jobs;
 using UnityEngine;
 using Unity.Entities;
 using Unity.Mathematics;
@@ -23,12 +24,12 @@ namespace ECS_SpaceShooterDemo
             public ComponentDataArray<PlayerSpawnBoltData> playerSpawnBoltDataArray;
 
             public SubtractiveComponent<EntityPrefabData> prefabData;
-            public int Length; //required variable
+            public readonly int Length; //required variable
         }
         [Inject]
         PlayerMoveSpawnBoltDataGroup playerMoveSpawnBoltDataGroup;
 
-        [ComputeJobOptimizationAttribute(Accuracy.Med, Support.Relaxed)]
+        [BurstCompileAttribute(Accuracy.Med, Support.Relaxed)]
         struct PlayerSpawnBoltJob : IJobParallelFor
         {
             [ReadOnly]

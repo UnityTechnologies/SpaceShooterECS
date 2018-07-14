@@ -1,5 +1,6 @@
 ﻿using Unity.Collections;
 using Unity.Entities;
+using Unity.Burst;
 using Unity.Jobs;
 using Unity.Mathematics;
 using Unity.Transforms;
@@ -14,7 +15,7 @@ namespace Shooter.ECS
 			public ComponentDataArray<Position> positions;
 			[ReadOnly] public ComponentDataArray<Rotation> rotations;
 			[ReadOnly] public ComponentDataArray<MoveSpeed> moveSpeeds;
-			public int Length;
+			public readonly int Length;
 		}
 		[Inject]
 		EnemyGroup enemies;

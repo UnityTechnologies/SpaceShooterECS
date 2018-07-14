@@ -13,7 +13,7 @@ namespace ECS_SpaceShooterDemo
     public struct SpawnerHazardData : IComponentData
     {
         public int hazardIndexArrayLength;
-        public bool1 isBackgroundSpawner;
+        public int isBackgroundSpawner;
     }
 
 

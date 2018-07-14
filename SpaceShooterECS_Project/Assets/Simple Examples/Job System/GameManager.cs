@@ -1,5 +1,6 @@
 ﻿using Unity.Collections;
 using Unity.Entities;
+using Unity.Burst;
 using Unity.Jobs;
 using UnityEngine;
 using UnityEngine.Jobs;

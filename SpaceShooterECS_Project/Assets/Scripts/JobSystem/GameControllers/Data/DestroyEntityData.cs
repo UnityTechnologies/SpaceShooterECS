@@ -1,4 +1,5 @@
-﻿using Unity.Jobs;
+﻿using Unity.Burst;
+using Unity.Jobs;
 using UnityEngine;
 using Unity.Entities;
 using Unity.Mathematics;
@@ -17,6 +18,6 @@ namespace ECS_SpaceShooterDemo
     struct DestroyEntityDataGroup
     {
         public ComponentDataArray<DestroyEntityData> destroyEntityData;
-        public int Length;
+        public readonly int Length;
     }
 }

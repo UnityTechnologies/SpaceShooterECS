@@ -1,5 +1,6 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
+using Unity.Burst;
 using Unity.Jobs;
 using UnityEngine;
 using Unity.Entities;
@@ -16,13 +17,13 @@ namespace ECS_SpaceShooterDemo
         {
             public ComponentDataArray<EntityInstanceRenderData> entityInstanceRenderData;
             public ComponentDataArray<EntityInstanceRendererTransform> rendererTransforms;
-            public int Length;
+            public readonly int Length;
         }
 
         [Inject]
         EntityInstanceRenderDataGroup entityInstanceRenderDataGroup;
 
-        [ComputeJobOptimizationAttribute(Accuracy.Med, Support.Relaxed)]
+        [BurstCompileAttribute(Accuracy.Med, Support.Relaxed)]
         struct EntityInstanceRenderTransformJob : IJobProcessComponentData<EntityInstanceRenderData, EntityInstanceRendererTransform>
         {
             public void Execute(ref EntityInstanceRenderData entityInstanceRenderData, ref EntityInstanceRendererTransform transform)

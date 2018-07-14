@@ -1,4 +1,5 @@
-﻿using Unity.Jobs;
+﻿using Unity.Burst;
+using Unity.Jobs;
 using UnityEngine;
 using Unity.Entities;
 using Unity.Mathematics;
@@ -21,12 +22,12 @@ namespace ECS_SpaceShooterDemo
             public ComponentDataArray<EntityBoundExtendData> entityBoundExtendDataArray;
 
             public SubtractiveComponent<EntityPrefabData> prefabData;
-            public int Length; //required variable
+            public readonly int Length; //required variable
         }
         [Inject]
         AIMoveDataGroup aiMoveDataGroup;
 
-        [ComputeJobOptimizationAttribute(Accuracy.Med, Support.Relaxed)]
+        [BurstCompileAttribute(Accuracy.Med, Support.Relaxed)]
         struct AIMoveJob : IJobParallelFor
         {
             public ComponentDataArray<AIMoveData> aiMoveDataArray;

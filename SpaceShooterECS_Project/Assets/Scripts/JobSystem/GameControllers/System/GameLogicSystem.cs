@@ -1,4 +1,5 @@
-﻿using Unity.Jobs;
+﻿using Unity.Burst;
+using Unity.Jobs;
 using UnityEngine;
 using Unity.Entities;
 using Unity.Mathematics;
@@ -16,7 +17,7 @@ namespace ECS_SpaceShooterDemo
             [ReadOnly] public ComponentDataArray<PlayerMoveData> playerMoveData; //Use PlayerMoveData as a tag, only player entities have it
             [ReadOnly] public EntityArray entities;
 
-            public int Length; //required variable
+            public readonly int Length; //required variable
         }
         [Inject]
         PlayerGroup playerGroup;
@@ -62,7 +63,7 @@ namespace ECS_SpaceShooterDemo
 
             SpawnerHazardData hazardData = EntityManager.GetComponentData<SpawnerHazardData>(backgroundSpawnerEntity);
             hazardData.hazardIndexArrayLength = MonoBehaviourECSBridge.Instance.hazardsBackground.Length;
-            hazardData.isBackgroundSpawner = true;
+            hazardData.isBackgroundSpawner = 1;
             EntityManager.SetComponentData<SpawnerHazardData>(backgroundSpawnerEntity, hazardData);
 
             return backgroundSpawnerEntity;
@@ -93,7 +94,7 @@ namespace ECS_SpaceShooterDemo
 
                 SpawnerHazardData hazardData = EntityManager.GetComponentData<SpawnerHazardData>(gameplaySpawnerEntity);
                 hazardData.hazardIndexArrayLength = MonoBehaviourECSBridge.Instance.hazards.Length;
-                hazardData.isBackgroundSpawner = false;
+                hazardData.isBackgroundSpawner = 0;
                 EntityManager.SetComponentData<SpawnerHazardData>(gameplaySpawnerEntity, hazardData);
             }
         }
@@ -171,8 +172,8 @@ namespace ECS_SpaceShooterDemo
             UpdateInjectedComponentGroups();
 
             UIData tmpUIData = uiDataGroup.uiEntityData[0];
-            tmpUIData.gameOver = gameOver;
-            tmpUIData.restart = restart;
+            tmpUIData.gameOver = gameOver ? 1 : 0;
+            tmpUIData.restart = restart ? 1 : 0;
             uiDataGroup.uiEntityData[0] = tmpUIData;
 
         }

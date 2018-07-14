@@ -1,4 +1,6 @@
 ﻿using System.Collections;
+using Unity.Burst;
+using Unity.Burst;
 using Unity.Jobs;
 using UnityEngine;
 using Unity.Entities;
@@ -20,7 +22,7 @@ namespace ECS_SpaceShooterDemo
         {
             [ReadOnly] public EntityArray entities;
 
-            public int Length; //required variable
+            public readonly int Length; //required variable
         }
         [Inject]
         EntityGroup entityGroup;
@@ -86,7 +88,7 @@ namespace ECS_SpaceShooterDemo
             float fps = 1.0f / deltaTime;
             MonoBehaviourECSBridge.Instance.fpsText.text = string.Format("FPS: {0:00.} ({1:00.0} ms)", fps, msec);
 
-            if (uiData.gameOver)
+            if (uiData.gameOver != 0)
             {
                 MonoBehaviourECSBridge.Instance.gameOverText.text = "Game Over!";
             }
@@ -95,7 +97,7 @@ namespace ECS_SpaceShooterDemo
                 MonoBehaviourECSBridge.Instance.gameOverText.text = "";
             }
 
-            if (uiData.restart)
+            if (uiData.restart != 0 )
             {
                 MonoBehaviourECSBridge.Instance.restartText.text = "Press 'R' for Restart";
             }
