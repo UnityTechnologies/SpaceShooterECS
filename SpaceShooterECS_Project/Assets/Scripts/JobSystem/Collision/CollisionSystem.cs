@@ -304,7 +304,8 @@ namespace ECS_SpaceShooterDemo
         }
 
 
-        [BurstCompileAttribute(Accuracy.Med, Support.Relaxed)]
+        //TODO: When using burst this job never complete when resizing the hash map 
+        //[BurstCompileAttribute(Accuracy.Med, Support.Relaxed)] 
         struct AllocateCellsJob : IJob
         {
             public NativeMultiHashMap<int, HashMapData> outputCells;
@@ -376,12 +377,13 @@ namespace ECS_SpaceShooterDemo
 
             //create the hashMaps if needed and get the subset arrays we will use
             UnityEngine.Profiling.Profiler.BeginSample("GetEntityArray");
+            
+            ForEachComponentGroupFilter boundDataforEachFilter = boundDataGroup.CreateForEachFilter(uniqueEntityTypes); 
+            
             for (int i = 0; i != uniqueEntityTypes.Count; i++)
             {
-                EntityTypeData entityTypeData = uniqueEntityTypes[i];
-                boundDataGroup.SetFilter(entityTypeData);
-                subsetEntityArrayArray[i] = boundDataGroup.GetEntityArray();
-                subsetMinMaxDataArrayArray[i] = boundDataGroup.GetComponentDataArray<EntityBoundMinMaxData>();
+                subsetEntityArrayArray[i] = boundDataGroup.GetEntityArray(boundDataforEachFilter, i); 
+                subsetMinMaxDataArrayArray[i] = boundDataGroup.GetComponentDataArray<EntityBoundMinMaxData>(boundDataforEachFilter, i); 
 
                 if (subsetEntityArrayArray[i].Length != 0)
                 {
@@ -389,6 +391,8 @@ namespace ECS_SpaceShooterDemo
                 }
 
             }
+            
+            boundDataforEachFilter.Dispose(); 
             UnityEngine.Profiling.Profiler.EndSample();
 
 
@@ -423,9 +427,7 @@ namespace ECS_SpaceShooterDemo
             }
             UnityEngine.Profiling.Profiler.EndSample();
 
-            allocateCellJobHandle.Complete();
-
-            JobHandle fillCellJobDependency = JobHandle.CombineDependencies(inputDeps, allBoundGroupDependencies);
+            JobHandle fillCellJobDependency = JobHandle.CombineDependencies(inputDeps, allBoundGroupDependencies, allocateCellJobHandle);
 
             for (int i = 0; i != uniqueEntityTypes.Count; i++)
             {
@@ -442,8 +444,8 @@ namespace ECS_SpaceShooterDemo
                 float3 tmpOutputCellSize = cellSizeEntityDictionary[entityTypeData.entityType];
 
                 UnityEngine.Profiling.Profiler.BeginSample("Allocate tmp Array");
-                NativeArray<Entity> subsetEntityArrayOutput = new NativeArray<Entity>(subsetEntityArray.Length, Allocator.TempJob);
-                NativeArray<EntityBoundMinMaxData> subsetMinMaxDataArrayOutput = new NativeArray<EntityBoundMinMaxData>(subsetEntityArray.Length, Allocator.TempJob);
+                NativeArray<Entity> subsetEntityArrayOutput = new NativeArray<Entity>(subsetEntityArray.Length, Allocator.TempJob, NativeArrayOptions.UninitializedMemory);
+                NativeArray<EntityBoundMinMaxData> subsetMinMaxDataArrayOutput = new NativeArray<EntityBoundMinMaxData>(subsetEntityArray.Length, Allocator.TempJob, NativeArrayOptions.UninitializedMemory);
                 UnityEngine.Profiling.Profiler.EndSample();
 
                 FillCellJob fillCellJob = new FillCellJob
@@ -482,9 +484,6 @@ namespace ECS_SpaceShooterDemo
             {
                 return inputDeps;
             }
-
-            //JobHandle.ScheduleBatchedJobs();
-
 
             UnityEngine.Profiling.Profiler.BeginSample("CollisionJobSetup");
 
