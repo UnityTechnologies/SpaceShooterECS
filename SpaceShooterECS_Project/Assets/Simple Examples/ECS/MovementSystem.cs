@@ -8,6 +8,7 @@ using UnityEngine;
 
 namespace Shooter.ECS
 {
+	
     public class MovementSystem : ComponentSystem 
 	{
 		struct EnemyGroup
