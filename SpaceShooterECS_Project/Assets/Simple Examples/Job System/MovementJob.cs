@@ -5,7 +5,7 @@ using UnityEngine.Jobs;
 
 namespace Shooter.JobSystem
 {
-    [ComputeJobOptimization]
+    [BurstCompile]
     public struct MovementJob : IJobParallelForTransform
     {
         public float moveSpeed;

@@ -10,7 +10,7 @@ namespace Shooter.ECSwithJobs
 {
     public class MovementSystem : JobComponentSystem 
 	{
-        [ComputeJobOptimization]
+        [BurstCompile]
         struct MovementJob : IJobProcessComponentData<Position, Rotation, MoveSpeed>
         {
             public float topBound;
