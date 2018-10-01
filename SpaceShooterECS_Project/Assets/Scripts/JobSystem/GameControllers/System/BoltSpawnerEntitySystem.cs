@@ -68,9 +68,9 @@ namespace ECS_SpaceShooterDemo
                 boldMoveDataFromEntity[spawnedBoltEntityArray[index]] = boldMoveData;
             }
         }
-        protected override void OnCreateManager(int capacity)
+        protected override void OnCreateManager()
         {
-            base.OnCreateManager(capacity);
+            base.OnCreateManager();
 
             //Create our queues to hold entities to spawn bolt from
             aiBoltSpawnQueue = new NativeQueue<Entity>(Allocator.Persistent);
@@ -81,8 +81,8 @@ namespace ECS_SpaceShooterDemo
 
             //Create the entitie that holds our queue, one way of making them accessible to other systems 
             BoltSpawnerEntityData data = new BoltSpawnerEntityData();
-            data.aiBoltSpawnQueueConcurrent = aiBoltSpawnQueue;
-            data.playerBoltSpawnQueueConcurrent = playerBoltSpawnQueue;
+            data.aiBoltSpawnQueueConcurrent = aiBoltSpawnQueue.ToConcurrent();
+            data.playerBoltSpawnQueueConcurrent = playerBoltSpawnQueue.ToConcurrent();
 
             dataEntity = EntityManager.CreateEntity();
             EntityManager.AddComponentData(dataEntity, data);

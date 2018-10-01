@@ -37,7 +37,6 @@ namespace ECS_SpaceShooterDemo
             var entityJob = new EntityInstanceRenderTransformJob();
 
             return entityJob.Schedule(this,
-                                      MonoBehaviourECSBridge.Instance.GetJobBatchCount(entityInstanceRenderDataGroup.Length),
                                       inputDeps);
         }
     }

@@ -73,9 +73,9 @@ namespace ECS_SpaceShooterDemo
             }
         }
 
-        protected override void OnCreateManager(int capacity)
+        protected override void OnCreateManager()
         {
-            base.OnCreateManager(capacity);
+            base.OnCreateManager();
 
             allClearCellsJobHandleArray = new JobHandle[cellEntityTypeDictionaryArray.Length];
 
@@ -356,7 +356,7 @@ namespace ECS_SpaceShooterDemo
             allClearCellsJobHandle.Complete();
 
             uniqueEntityTypes.Clear();
-            EntityManager.GetAllUniqueSharedComponentDatas(uniqueEntityTypes);
+            EntityManager.GetAllUniqueSharedComponentData(uniqueEntityTypes);
 
             entityTypeList.Clear();
             subsetEntityDictionary.Clear();
@@ -378,12 +378,12 @@ namespace ECS_SpaceShooterDemo
             //create the hashMaps if needed and get the subset arrays we will use
             UnityEngine.Profiling.Profiler.BeginSample("GetEntityArray");
             
-            ForEachComponentGroupFilter boundDataforEachFilter = boundDataGroup.CreateForEachFilter(uniqueEntityTypes); 
             
             for (int i = 0; i != uniqueEntityTypes.Count; i++)
             {
-                subsetEntityArrayArray[i] = boundDataGroup.GetEntityArray(boundDataforEachFilter, i); 
-                subsetMinMaxDataArrayArray[i] = boundDataGroup.GetComponentDataArray<EntityBoundMinMaxData>(boundDataforEachFilter, i); 
+                boundDataGroup.SetFilter(uniqueEntityTypes[i]);
+                subsetEntityArrayArray[i] = boundDataGroup.GetEntityArray(); 
+                subsetMinMaxDataArrayArray[i] = boundDataGroup.GetComponentDataArray<EntityBoundMinMaxData>(); 
 
                 if (subsetEntityArrayArray[i].Length != 0)
                 {
@@ -392,7 +392,7 @@ namespace ECS_SpaceShooterDemo
 
             }
             
-            boundDataforEachFilter.Dispose(); 
+            boundDataGroup.ResetFilter();
             UnityEngine.Profiling.Profiler.EndSample();
 
 
@@ -440,7 +440,7 @@ namespace ECS_SpaceShooterDemo
                     continue;
                 }
 
-                NativeMultiHashMap<int, HashMapData>.Concurrent tmpOutputCell = cellEntityTypeDictionary[entityTypeData.entityType];
+                NativeMultiHashMap<int, HashMapData>.Concurrent tmpOutputCell = cellEntityTypeDictionary[entityTypeData.entityType].ToConcurrent();
                 float3 tmpOutputCellSize = cellSizeEntityDictionary[entityTypeData.entityType];
 
                 UnityEngine.Profiling.Profiler.BeginSample("Allocate tmp Array");

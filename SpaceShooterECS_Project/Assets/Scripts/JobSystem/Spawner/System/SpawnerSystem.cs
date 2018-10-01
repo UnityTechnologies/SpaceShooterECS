@@ -32,10 +32,16 @@ namespace ECS_SpaceShooterDemo
 
         private NativeList<SpawnerSpawnInfo> spawnerSpawnInfoList;
 
-        protected override void OnCreateManager(int capacity)
-        {
-            base.OnCreateManager(capacity);
+        
+        Unity.Mathematics.Random randomGenerator;
 
+        
+        protected override void OnCreateManager()
+        {
+            base.OnCreateManager();
+
+            randomGenerator = new Unity.Mathematics.Random(0x6E624EB7u);
+            
             spawnerSpawnInfoList = new NativeList<SpawnerSpawnInfo>(1000, Allocator.Persistent);
         }
 
@@ -45,8 +51,6 @@ namespace ECS_SpaceShooterDemo
 
             base.OnDestroyManager();
         }
-
-
 
         protected override void OnUpdate()
         {
@@ -71,7 +75,7 @@ namespace ECS_SpaceShooterDemo
                     float yPositionSpawn = spawnerPositionData.position.y;
 
                     //Get a random index to spawn, the range depend on the amount of hazards we set in the editor
-                    int hazardToSpawnIndex = Random.Range(0, spawnerHazardData.hazardIndexArrayLength);
+                    int hazardToSpawnIndex = randomGenerator.NextInt(0, spawnerHazardData.hazardIndexArrayLength);
 
                     SpawnerSpawnInfo spawnInfo = new SpawnerSpawnInfo
                     {
@@ -105,8 +109,12 @@ namespace ECS_SpaceShooterDemo
                 float halfFrustumWidth = halfFrustumHeight * MonoBehaviourECSBridge.Instance.gameCamera.aspect;
 
                 //Enemy/Hazard are spawned from the top of the screen, Allies are spawned from the bottom
-                float3 spawnPositionHazard = new Vector3(Random.Range(cameraPosition.x - halfFrustumWidth, cameraPosition.x + halfFrustumWidth), yPosition, cameraPosition.z + halfFrustumHeight);
-                float3 spawnPositionAlly = new Vector3(Random.Range(cameraPosition.x - halfFrustumWidth, cameraPosition.x + halfFrustumWidth), yPosition, cameraPosition.z - halfFrustumHeight);
+                float3 spawnPositionHazard = new Vector3(randomGenerator.NextFloat(cameraPosition.x - halfFrustumWidth, cameraPosition.x + halfFrustumWidth), 
+                                                         yPosition, 
+                                                         cameraPosition.z + halfFrustumHeight);
+                float3 spawnPositionAlly = new Vector3(randomGenerator.NextFloat(cameraPosition.x - halfFrustumWidth, cameraPosition.x + halfFrustumWidth), 
+                                                         yPosition, 
+                                                         cameraPosition.z - halfFrustumHeight);
 
                 //Spawn the hazard using the index we randomnly generated
                 Entity newHazardEntity = EntityManager.Instantiate(MonoBehaviourECSBridge.Instance.GetPrefabHazardEntity(spawnInfo.hazardIndexToSpawn, spawnInfo.isBackgroundSpawn == 1));
@@ -119,9 +127,10 @@ namespace ECS_SpaceShooterDemo
                 {
                     case EntityTypeData.EntityType.Asteroid:
                         {
-                            Vector3 spawnRenderForward = new Vector3(Random.value, Random.value, 1.0f);
+                            
+                            Vector3 spawnRenderForward = new Vector3(randomGenerator.NextFloat(), randomGenerator.NextFloat(), 1.0f);
                             spawnRenderForward.Normalize();
-                            Vector3 spawnRotationAxis = new Vector3(Random.value, 1.0f, Random.value);
+                            Vector3 spawnRotationAxis = new Vector3(randomGenerator.NextFloat(), 1.0f, randomGenerator.NextFloat());
                             spawnRotationAxis.Normalize();
 
                             AsteroidMoveData moveData = EntityManager.GetComponentData<AsteroidMoveData>(newHazardEntity);

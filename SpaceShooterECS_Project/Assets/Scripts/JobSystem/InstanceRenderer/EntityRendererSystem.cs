@@ -46,7 +46,7 @@ namespace ECS_SpaceShooterDemo
             }
         }
 
-	    protected override void OnCreateManager(int capacity)
+	    protected override void OnCreateManager()
 	    {
 	        for (int i = 0; i < 2; i++)
 	        {
@@ -59,7 +59,7 @@ namespace ECS_SpaceShooterDemo
 
 	        m_InstanceRendererGroup = GetComponentGroup(ComponentType.Subtractive(typeof(EntityPrefabData)), typeof(EntityInstanceRenderer), typeof(EntityInstanceRendererTransform));
 
-	        base.OnCreateManager(capacity);
+	        base.OnCreateManager();
 	    }
 
 	    protected override void OnDestroyManager()
@@ -119,8 +119,8 @@ namespace ECS_SpaceShooterDemo
             m_InstanceRendererGroup.GetDependency().Complete();
             UnityEngine.Profiling.Profiler.EndSample();
 
-            UnityEngine.Profiling.Profiler.BeginSample("GetAllUniqueSharedComponentDatas");
-            EntityManager.GetAllUniqueSharedComponentDatas(m_CacheduniqueRendererTypes);
+            UnityEngine.Profiling.Profiler.BeginSample("GetAllUniqueSharedComponentData");
+            EntityManager.GetAllUniqueSharedComponentData(m_CacheduniqueRendererTypes);
             UnityEngine.Profiling.Profiler.EndSample();
 
             CopyMatricesJob[] copyMatricesJobArray = new CopyMatricesJob[m_matrixPtrCount];

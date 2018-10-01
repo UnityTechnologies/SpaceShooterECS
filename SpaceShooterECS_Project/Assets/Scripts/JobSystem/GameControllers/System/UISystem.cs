@@ -32,9 +32,9 @@ namespace ECS_SpaceShooterDemo
 
         float deltaTime = 0;
 
-        protected override void OnCreateManager(int capacity)
+        protected override void OnCreateManager()
         {
-            base.OnCreateManager(capacity);
+            base.OnCreateManager();
 
             entityDataGroup = GetComponentGroup(ComponentType.Subtractive(typeof(EntityPrefabData)), typeof(EntityTypeData));
 
@@ -68,7 +68,7 @@ namespace ECS_SpaceShooterDemo
 
 
             uniqueEntityTypes.Clear();
-            EntityManager.GetAllUniqueSharedComponentDatas(uniqueEntityTypes);
+            EntityManager.GetAllUniqueSharedComponentData(uniqueEntityTypes);
             for (int i = 0; i != uniqueEntityTypes.Count; i++)
             {
                 switch (uniqueEntityTypes[i].entityType)

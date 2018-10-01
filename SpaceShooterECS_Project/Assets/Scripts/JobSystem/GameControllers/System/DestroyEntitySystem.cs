@@ -112,9 +112,9 @@ namespace ECS_SpaceShooterDemo
             }
         }
 
-        protected override void OnCreateManager(int capacity)
+        protected override void OnCreateManager()
         {
-            base.OnCreateManager(capacity);
+            base.OnCreateManager();
 
             //Allocate our queues
             entityOutOfBoundQueue = new NativeQueue<Entity>(Allocator.Persistent);
@@ -125,8 +125,8 @@ namespace ECS_SpaceShooterDemo
 
             //Create the compoenent data used to store our queues, other systems will look for that component data type
             DestroyEntityData data = new DestroyEntityData();
-            data.entityOutOfBoundQueueConcurrent = entityOutOfBoundQueue;
-            data.entityCollisionQueueConcurrent = entityCollisionQueue;
+            data.entityOutOfBoundQueueConcurrent = entityOutOfBoundQueue.ToConcurrent();
+            data.entityCollisionQueueConcurrent = entityCollisionQueue.ToConcurrent();
 
             //Add that struct to the entity
             EntityManager.AddComponentData(dataEntity, data);
