@@ -32,9 +32,9 @@ namespace ECS_SpaceShooterDemo
 
         private NativeList<SpawnerSpawnInfo> spawnerSpawnInfoList;
 
-        protected override void OnCreateManager(int capacity)
+        protected override void OnCreateManager()
         {
-            base.OnCreateManager(capacity);
+            base.OnCreateManager();
 
             spawnerSpawnInfoList = new NativeList<SpawnerSpawnInfo>(1000, Allocator.Persistent);
         }

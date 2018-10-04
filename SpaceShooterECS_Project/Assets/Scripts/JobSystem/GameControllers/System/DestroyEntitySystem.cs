@@ -112,9 +112,9 @@ namespace ECS_SpaceShooterDemo
             }
         }
 
-        protected override void OnCreateManager(int capacity)
+        protected override void OnCreateManager()
         {
-            base.OnCreateManager(capacity);
+            base.OnCreateManager();
 
             //Allocate our queues
             entityOutOfBoundQueue = new NativeQueue<Entity>(Allocator.Persistent);

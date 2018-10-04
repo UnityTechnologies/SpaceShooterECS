@@ -33,9 +33,9 @@ namespace ECS_SpaceShooterDemo
         private bool restart;
 
 
-        protected override void OnCreateManager(int capacity)
+        protected override void OnCreateManager()
         {
-            base.OnCreateManager(capacity);
+            base.OnCreateManager();
 
             //This function will call MonoBehaviourECSBridge.Instance, this will work because this system is created during the OnEnable of the MonoBehaviourECSBridge gameobject component
             RestartGame();

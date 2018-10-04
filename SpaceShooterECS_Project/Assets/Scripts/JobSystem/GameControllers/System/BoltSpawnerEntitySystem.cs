@@ -68,9 +68,9 @@ namespace ECS_SpaceShooterDemo
                 boldMoveDataFromEntity[spawnedBoltEntityArray[index]] = boldMoveData;
             }
         }
-        protected override void OnCreateManager(int capacity)
+        protected override void OnCreateManager()
         {
-            base.OnCreateManager(capacity);
+            base.OnCreateManager();
 
             //Create our queues to hold entities to spawn bolt from
             aiBoltSpawnQueue = new NativeQueue<Entity>(Allocator.Persistent);
