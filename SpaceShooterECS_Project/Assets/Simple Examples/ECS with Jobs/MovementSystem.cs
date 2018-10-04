@@ -39,7 +39,7 @@ namespace Shooter.ECSwithJobs
                 deltaTime = Time.deltaTime
             };
 
-            JobHandle moveHandle = moveJob.Schedule(this, 64, inputDeps);
+            JobHandle moveHandle = moveJob.Schedule(this, inputDeps);
 
             return moveHandle;
         }

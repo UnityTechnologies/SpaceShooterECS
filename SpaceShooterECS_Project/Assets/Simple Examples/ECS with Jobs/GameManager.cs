@@ -64,8 +64,8 @@ namespace Shooter.ECSwithJobs
 
             for (int i = 0; i < amount; i++)
             {
-                float xVal = Random.Range(leftBound, rightBound);
-                float zVal = Random.Range(0f, 10f);
+                float xVal = UnityEngine.Random.Range(leftBound, rightBound);
+                float zVal = UnityEngine.Random.Range(0f, 10f);
                 manager.SetComponentData(entities[i], new Position { Value = new float3(xVal, 0f, topBound + zVal) });
                 manager.SetComponentData(entities[i], new Rotation { Value = new quaternion(0, 1, 0, 0) });
                 manager.SetComponentData(entities[i], new MoveSpeed { Value = enemySpeed });
