@@ -242,11 +242,11 @@ namespace ECS_SpaceShooterDemo
 
             //Copy our current UI data in a tmp array
             UIData testData = uiEntityDataGroup.uiEntityData[0];
-            NativeArray<UIData> uiTmpDataArray = new NativeArray<UIData>(1, Allocator.Temp);
+            NativeArray<UIData> uiTmpDataArray = new NativeArray<UIData>(1, Allocator.TempJob);
             uiTmpDataArray[0] = testData;
 
             //Create a tmp list to contain the data needed to do some logic after entities destruction
-            NativeList<InfoForLogicAfterDestroy> infoLogicTmpDataList = new NativeList<InfoForLogicAfterDestroy>(entityCollisionQueue.Count, Allocator.Temp);
+            NativeList<InfoForLogicAfterDestroy> infoLogicTmpDataList = new NativeList<InfoForLogicAfterDestroy>(entityCollisionQueue.Count, Allocator.TempJob);
 
             //Tell the EntityManager that we will start doing entity work only via an ExclusiveEntityTransaction (that can be passed to a job)
             ExclusiveEntityTransaction exclusiveEntityTransaction = EntityManager.BeginExclusiveEntityTransaction();
