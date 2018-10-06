@@ -6,6 +6,7 @@ using Unity.Mathematics;
 
 namespace UnityEngine.ECS.Rendering
 {
+    [System.Serializable]
     public struct EntityInstanceRendererTransform : IComponentData
     {
         public float4x4 matrix;

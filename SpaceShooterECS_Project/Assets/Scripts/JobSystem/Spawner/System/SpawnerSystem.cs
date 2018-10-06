@@ -32,6 +32,8 @@ namespace ECS_SpaceShooterDemo
 
         private NativeList<SpawnerSpawnInfo> spawnerSpawnInfoList;
 
+        private Unity.Mathematics.Random randomGenerator;
+        
         protected override void OnCreateManager()
         {
             base.OnCreateManager();

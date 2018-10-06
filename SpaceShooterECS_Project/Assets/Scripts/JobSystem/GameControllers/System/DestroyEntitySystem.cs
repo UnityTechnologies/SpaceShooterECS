@@ -85,8 +85,6 @@ namespace ECS_SpaceShooterDemo
                             if(MonoBehaviourECSBridge.Instance.playerExplosion != null)
                             {
                                 GameObject.Instantiate(MonoBehaviourECSBridge.Instance.playerExplosion, infoLogic.renderData.position, Quaternion.LookRotation(infoLogic.renderData.forward, infoLogic.renderData.up));
-                                // Large shake to indicate player has died
-                                CameraController.Instance.OverrideWithShake(CameraController.SHAKE_SIZE.Large);
                             }
                         }
                         break;
