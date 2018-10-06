@@ -41,6 +41,8 @@ namespace Shooter.ECSwithJobs
       
             JobHandle moveHandle = moveJob.Schedule(this, inputDeps);
 
+            JobHandle moveHandle = moveJob.Schedule(this, inputDeps);
+
             return moveHandle;
         }
     }
