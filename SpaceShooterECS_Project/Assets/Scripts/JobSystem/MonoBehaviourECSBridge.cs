@@ -40,18 +40,20 @@ namespace ECS_SpaceShooterDemo
         public Text gameOverText;
 
         [Header("VFX")]
-        public GameObject asteroidExplosion;
-        public GameObject enemyExplosion;
-        public GameObject enemyBolt;
-        public GameObject allyExplosion;
+        public ParticleSystemManager asteroidExplosion;
+        public ParticleSystemManager enemyExplosion;
+        public ParticleSystemManager allyExplosion;
+        public ParticleSystemManager playerExplosion;
+
+        [Header("Bolts Prefab")]
         public GameObject allyBolt;
-        public GameObject playerExplosion;
+        public GameObject enemyBolt;
         public GameObject playerBolt;
 
         [Header("Game Camera")]
         public Camera gameCamera;
 
-        private Vector3 _playerPosition;
+        private Vector3 _playerPosition = Vector3.zero;
         public Vector3 playerPosition
         {
             get; set;

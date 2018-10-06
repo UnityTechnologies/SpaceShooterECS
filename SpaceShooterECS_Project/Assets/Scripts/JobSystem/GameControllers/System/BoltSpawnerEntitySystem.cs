@@ -101,6 +101,8 @@ namespace ECS_SpaceShooterDemo
 
         protected override void OnDestroyManager()
         {
+            EntityManager.CompleteAllJobs();
+
             //Dispose of queues and lists we allocated
             aiBoltSpawnQueue.Dispose();
             playerBoltSpawnQueue.Dispose();

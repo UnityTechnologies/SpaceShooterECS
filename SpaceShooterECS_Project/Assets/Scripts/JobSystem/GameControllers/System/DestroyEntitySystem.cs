@@ -34,20 +34,23 @@ namespace ECS_SpaceShooterDemo
         //Function do some logic after entities have been destroyed (in this case spawn particles)
         void DestroyLogic(NativeList<InfoForLogicAfterDestroy> infoLogicTmpDataArray)
         {
-            for(int i = 0; i < infoLogicTmpDataArray.Length; i++)
+            const float nonPriorityVFXMaxDistance = -50.0f;
+            const float priorityVFXMaxDistance = -23.0f;
+            for (int i = 0; i < infoLogicTmpDataArray.Length; i++)
             {
                 InfoForLogicAfterDestroy infoLogic = infoLogicTmpDataArray[i];
                 switch(infoLogic.entityTypeData.entityType)
                 {
                     case EntityTypeData.EntityType.Asteroid:
                         {
-                            if (MonoBehaviourECSBridge.Instance.asteroidExplosion != null)
+                            if (infoLogic.renderData.position.y > nonPriorityVFXMaxDistance && MonoBehaviourECSBridge.Instance.asteroidExplosion != null)
                             {
-                                //Fow now only spawn particles close to the player position, this is a normal game object spawn and is slow
-                                if(infoLogic.renderData.position.y > -23)
-                                {
-                                    GameObject.Instantiate(MonoBehaviourECSBridge.Instance.asteroidExplosion, infoLogic.renderData.position, Quaternion.LookRotation(infoLogic.renderData.forward, infoLogic.renderData.up));
-                                }
+                                bool priorityParticle = infoLogic.renderData.position.y > priorityVFXMaxDistance ? true : false;
+
+                                MonoBehaviourECSBridge.Instance.asteroidExplosion.SpawnParticle(priorityParticle,
+                                                                                                infoLogic.renderData.position,
+                                                                                                Quaternion.LookRotation(infoLogic.renderData.forward, infoLogic.renderData.up));
+
                             }
                         }
                         break;
@@ -58,33 +61,35 @@ namespace ECS_SpaceShooterDemo
                         break;
                     case EntityTypeData.EntityType.EnemyShip:
                         {
-                            if (MonoBehaviourECSBridge.Instance.enemyExplosion != null)
+                            if (infoLogic.renderData.position.y > nonPriorityVFXMaxDistance && MonoBehaviourECSBridge.Instance.enemyExplosion != null)
                             {
-                                //Fow now only spawn particles close to the player position, this is a normal game object spawn and is slow
-                                if (infoLogic.renderData.position.y > -23)
-                                {
-                                    GameObject.Instantiate(MonoBehaviourECSBridge.Instance.enemyExplosion, infoLogic.renderData.position, Quaternion.LookRotation(infoLogic.renderData.forward, infoLogic.renderData.up));
-                                }
+                                bool priorityParticle = infoLogic.renderData.position.y > priorityVFXMaxDistance ? true : false;
+
+                                MonoBehaviourECSBridge.Instance.enemyExplosion.SpawnParticle(priorityParticle,
+                                                                                                infoLogic.renderData.position,
+                                                                                                Quaternion.LookRotation(infoLogic.renderData.forward, infoLogic.renderData.up));
                             }
                         }
                         break;
                     case EntityTypeData.EntityType.AllyShip:
                         {
-                            if (MonoBehaviourECSBridge.Instance.allyExplosion != null)
+                            if (infoLogic.renderData.position.y > nonPriorityVFXMaxDistance && MonoBehaviourECSBridge.Instance.allyExplosion != null)
                             {
-                                //Fow now only spawn particles close to the player position, this is a normal game object spawn and is slow
-                                if (infoLogic.renderData.position.y > -23)
-                                {
-                                    GameObject.Instantiate(MonoBehaviourECSBridge.Instance.allyExplosion, infoLogic.renderData.position, Quaternion.LookRotation(infoLogic.renderData.forward, infoLogic.renderData.up));
-                                }
+                                bool priorityParticle = infoLogic.renderData.position.y > priorityVFXMaxDistance ? true : false;
+
+                                MonoBehaviourECSBridge.Instance.allyExplosion.SpawnParticle(priorityParticle,
+                                                                                                infoLogic.renderData.position,
+                                                                                                Quaternion.LookRotation(infoLogic.renderData.forward, infoLogic.renderData.up));
                             }
                         }
                         break;
                     case EntityTypeData.EntityType.PlayerShip:
                         {
-                            if(MonoBehaviourECSBridge.Instance.playerExplosion != null)
+                            if (MonoBehaviourECSBridge.Instance.playerExplosion != null)
                             {
-                                GameObject.Instantiate(MonoBehaviourECSBridge.Instance.playerExplosion, infoLogic.renderData.position, Quaternion.LookRotation(infoLogic.renderData.forward, infoLogic.renderData.up));
+                                MonoBehaviourECSBridge.Instance.playerExplosion.SpawnParticle(true,
+                                                                                                infoLogic.renderData.position,
+                                                                                                Quaternion.LookRotation(infoLogic.renderData.forward, infoLogic.renderData.up));
                             }
                         }
                         break;

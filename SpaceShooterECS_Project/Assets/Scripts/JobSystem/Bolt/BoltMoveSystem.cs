@@ -49,9 +49,8 @@ namespace ECS_SpaceShooterDemo
 
                 EntityInstanceRenderData entityInstanceRenderData = entityInstanceRenderDataArray[index];
                 entityInstanceRenderData.position = boltMoveData.position;
-                entityInstanceRenderData.forward = renderDataForward;// new float3(0, -1, 0);
+                entityInstanceRenderData.forward = renderDataForward;
 
-                //Feedback: Burst write float3(0,0,1) here
                 entityInstanceRenderData.up = -boltMoveData.forwardDirection;
 
                 entityInstanceRenderDataArray[index] = entityInstanceRenderData;
