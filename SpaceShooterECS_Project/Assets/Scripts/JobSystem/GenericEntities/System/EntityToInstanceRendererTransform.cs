@@ -13,17 +13,8 @@ namespace ECS_SpaceShooterDemo
     [UpdateBefore(typeof(ECS_SpaceShooterDemo.CollisionSystem))]
     public class EntityToInstanceRendererTransform : GameControllerJobComponentSystem
     {
-        struct EntityInstanceRenderDataGroup
-        {
-            public ComponentDataArray<EntityInstanceRenderData> entityInstanceRenderData;
-            public ComponentDataArray<EntityInstanceRendererTransform> rendererTransforms;
-            public readonly int Length;
-        }
-
-        [Inject]
-        EntityInstanceRenderDataGroup entityInstanceRenderDataGroup;
-
-        [BurstCompileAttribute(Accuracy.Med, Support.Relaxed)]
+        //Having a IJobProcessComponentData will automatically add the iComponentData type used as a dependency to the system
+        [BurstCompile]
         struct EntityInstanceRenderTransformJob : IJobProcessComponentData<EntityInstanceRenderData, EntityInstanceRendererTransform>
         {
             public void Execute(ref EntityInstanceRenderData entityInstanceRenderData, ref EntityInstanceRendererTransform transform)
@@ -36,8 +27,7 @@ namespace ECS_SpaceShooterDemo
         {
             var entityJob = new EntityInstanceRenderTransformJob();
 
-            return entityJob.Schedule(this,
-                                      inputDeps);
+            return entityJob.Schedule(this, inputDeps);
         }
     }
 }

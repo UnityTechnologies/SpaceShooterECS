@@ -12,5 +12,7 @@ namespace UnityEngine.ECS.Rendering
         public float4x4 matrix;
     }
 
+    
+    
     public class EntityRendererTransformComponent : ComponentDataWrapper<EntityInstanceRendererTransform> { }
 }
