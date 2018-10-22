@@ -17,7 +17,6 @@ namespace ECS_SpaceShooterDemo
             public ComponentDataArray<SpawnerHazardData> spawnerHazardDataArray;
             public ComponentDataArray<SpawnerSpawnData> spawnerSpawnDataArray;
 
-            public SubtractiveComponent<EntityPrefabData> prefabData;
             public readonly int Length; //required variable
         }
         [Inject]
@@ -117,7 +116,7 @@ namespace ECS_SpaceShooterDemo
                 //Spawn the hazard using the index we randomnly generated
                 Entity newHazardEntity = EntityManager.Instantiate(MonoBehaviourECSBridge.Instance.GetPrefabHazardEntity(spawnInfo.hazardIndexToSpawn, spawnInfo.isBackgroundSpawn == 1));
                 //Make sure to remove the prefab "tag" data component
-                EntityManager.RemoveComponent<EntityPrefabData>(newHazardEntity);
+               // EntityManager.RemoveComponent<Prefab>(newHazardEntity);
 
                 //Based on the type of entity spawned, set the data needed for it
                 EntityTypeData entityTypeData = EntityManager.GetSharedComponentData<EntityTypeData>(newHazardEntity);

@@ -84,7 +84,7 @@ namespace ECS_SpaceShooterDemo
                 cellEntityTypeDictionaryArray[i] = new Dictionary<EntityTypeData.EntityType, NativeMultiHashMap<int, HashMapData>>((int)EntityTypeData.EntityType.EntityTypeCount);
             }
 
-            boundDataGroup = GetComponentGroup(ComponentType.Subtractive(typeof(EntityPrefabData)), typeof(CollisionData), typeof(EntityTypeData), typeof(EntityBoundMinMaxData));
+            boundDataGroup = GetComponentGroup(typeof(CollisionData), typeof(EntityTypeData), typeof(EntityBoundMinMaxData));
         }
 
         protected override void OnDestroyManager()

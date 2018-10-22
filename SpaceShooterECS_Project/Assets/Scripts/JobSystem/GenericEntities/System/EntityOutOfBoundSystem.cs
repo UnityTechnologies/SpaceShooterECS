@@ -25,7 +25,6 @@ namespace ECS_SpaceShooterDemo
             public ComponentDataArray<EntityBoundCenterData> entityBoundCenterDataArray;
 
             public SubtractiveComponent<PlayerMoveData> playerMoveData;  //don't get our players
-            public SubtractiveComponent<EntityPrefabData> prefabData; //don't get our prefabs
             public readonly int Length; //required variable
         }
         [Inject]

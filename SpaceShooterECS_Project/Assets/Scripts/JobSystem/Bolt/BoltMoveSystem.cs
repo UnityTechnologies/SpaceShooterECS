@@ -20,8 +20,7 @@ namespace ECS_SpaceShooterDemo
             public ComponentDataArray<EntityBoundOffsetData> entityBoundOffsetDataArray;
             [ReadOnly]
             public ComponentDataArray<EntityBoundExtendData> entityBoundExtendDataArray;
-
-            public SubtractiveComponent<EntityPrefabData> prefabData;
+            
             public readonly int Length; //required variable
         }
         [Inject]

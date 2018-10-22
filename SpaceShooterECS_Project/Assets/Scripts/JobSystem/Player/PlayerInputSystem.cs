@@ -13,7 +13,6 @@ namespace ECS_SpaceShooterDemo
         {
             public ComponentDataArray<PlayerInputData> playerInputDataArray;
 
-            public SubtractiveComponent<EntityPrefabData> prefabData;
             public readonly int Length; //required variable
         }
         [Inject]

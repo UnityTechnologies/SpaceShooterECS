@@ -88,15 +88,15 @@ namespace ECS_SpaceShooterDemo
             EntityManager.AddComponentData(dataEntity, data);
 
             //Create entities that we will use as "prefab" for our bolts
-            //Add the EntityPrefabData IComponentData to make sure those entities are not picked up by systems
+            //Add the Prefab IComponentData to make sure those entities are not picked up by systems
             prefabEnemyBolt = EntityManager.Instantiate(MonoBehaviourECSBridge.Instance.enemyBolt);
-            EntityManager.AddComponentData<EntityPrefabData>(prefabEnemyBolt, new EntityPrefabData());
+            EntityManager.AddComponentData<Prefab>(prefabEnemyBolt, new Prefab());
 
             prefabAllyBolt = EntityManager.Instantiate(MonoBehaviourECSBridge.Instance.allyBolt);
-            EntityManager.AddComponentData<EntityPrefabData>(prefabAllyBolt, new EntityPrefabData());
+            EntityManager.AddComponentData<Prefab>(prefabAllyBolt, new Prefab());
 
             prefabPlayerBolt = EntityManager.Instantiate(MonoBehaviourECSBridge.Instance.playerBolt);
-            EntityManager.AddComponentData<EntityPrefabData>(prefabPlayerBolt, new EntityPrefabData());
+            EntityManager.AddComponentData<Prefab>(prefabPlayerBolt, new Prefab());
         }
 
         protected override void OnDestroyManager()
@@ -134,7 +134,7 @@ namespace ECS_SpaceShooterDemo
             UnityEngine.Profiling.Profiler.BeginSample("SpawnBoltFromEntityList");
 
             Entity boltCopy = EntityManager.Instantiate(prefabEntity);
-            EntityManager.RemoveComponent<EntityPrefabData>(boltCopy);
+            //EntityManager.RemoveComponent<Prefab>(boltCopy);
 
             //Allocate the amount of entities we need in one shot
             NativeArray<Entity> newSpawnedBoltEntityArray = new NativeArray<Entity>(entityList.Length, Allocator.TempJob);

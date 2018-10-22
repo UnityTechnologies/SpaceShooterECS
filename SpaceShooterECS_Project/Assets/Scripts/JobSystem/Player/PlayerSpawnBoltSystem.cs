@@ -23,7 +23,6 @@ namespace ECS_SpaceShooterDemo
             public ComponentDataArray<PlayerMoveData> playerMoveDataArray;
             public ComponentDataArray<PlayerSpawnBoltData> playerSpawnBoltDataArray;
 
-            public SubtractiveComponent<EntityPrefabData> prefabData;
             public readonly int Length; //required variable
         }
         [Inject]

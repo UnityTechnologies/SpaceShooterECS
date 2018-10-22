@@ -57,7 +57,7 @@ namespace ECS_SpaceShooterDemo
 	            }
 	        }
 
-	        m_InstanceRendererGroup = GetComponentGroup(ComponentType.Subtractive(typeof(EntityPrefabData)), typeof(EntityInstanceRenderer), typeof(EntityInstanceRendererTransform));
+	        m_InstanceRendererGroup = GetComponentGroup(typeof(EntityInstanceRenderer), typeof(EntityInstanceRendererTransform));
 
 	        base.OnCreateManager();
 	    }

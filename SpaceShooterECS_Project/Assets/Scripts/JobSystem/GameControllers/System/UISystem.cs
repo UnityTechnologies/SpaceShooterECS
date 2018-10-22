@@ -36,7 +36,7 @@ namespace ECS_SpaceShooterDemo
         {
             base.OnCreateManager();
 
-            entityDataGroup = GetComponentGroup(ComponentType.Subtractive(typeof(EntityPrefabData)), typeof(EntityTypeData));
+            entityDataGroup = GetComponentGroup(typeof(EntityTypeData));
 
 
             dataEntity = EntityManager.CreateEntity();

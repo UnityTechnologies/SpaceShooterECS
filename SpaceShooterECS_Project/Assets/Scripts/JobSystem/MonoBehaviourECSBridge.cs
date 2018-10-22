@@ -136,7 +136,7 @@ namespace ECS_SpaceShooterDemo
             for (int i = 0; i < hazards.Length; i++)
             {
                 Entity newPrefabEntity = entityManager.Instantiate(hazards[i]);
-                entityManager.AddComponentData<EntityPrefabData>(newPrefabEntity, new EntityPrefabData());
+                entityManager.AddComponentData<Prefab>(newPrefabEntity, new Prefab());
 
                 gameplayHazardIndexToPrefabs.Add(newPrefabEntity);
             }
@@ -144,7 +144,7 @@ namespace ECS_SpaceShooterDemo
             for (int i = 0; i < hazardsBackground.Length; i++)
             {
                 Entity newPrefabEntity = entityManager.Instantiate(hazardsBackground[i]);
-                entityManager.AddComponentData<EntityPrefabData>(newPrefabEntity, new EntityPrefabData());
+                entityManager.AddComponentData<Prefab>(newPrefabEntity, new Prefab());
 
                 backgroundHazardIndexToPrefabs.Add(newPrefabEntity);
             }
