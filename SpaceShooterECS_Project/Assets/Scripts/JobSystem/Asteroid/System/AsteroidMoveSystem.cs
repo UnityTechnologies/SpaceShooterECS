@@ -1,5 +1,4 @@
 ﻿using Unity.Burst;
-using Unity.Burst;
 using Unity.Jobs;
 using UnityEngine;
 using Unity.Entities;
@@ -12,24 +11,7 @@ namespace ECS_SpaceShooterDemo
     public class AsteroidMoveSystem : GameControllerJobComponentSystem
     {
         private ComponentGroup  asteroidMoveDataComponentGroup;
-        
-        struct AsteroidModeDataGroup
-        {
-            public ComponentDataArray<AsteroidMoveData> asteroidMoveDataArray;
-            public ComponentDataArray<EntityInstanceRenderData> entityInstanceRenderDataArray;
-            public ComponentDataArray<EntityBoundCenterData> entityBoundCenterDataArray;
-            public ComponentDataArray<EntityBoundMinMaxData> entityBoundMinMaxDataArray;
-            [ReadOnly]
-            public ComponentDataArray<EntityBoundOffsetData> entityBoundOffsetDataArray;
-            [ReadOnly]
-            public ComponentDataArray<EntityBoundExtendData> entityBoundExtendDataArray;
-
-            public readonly int Length; //required variable
-        }
-        [Inject]
-        AsteroidModeDataGroup asteroidMoveDataGroup;
-
-        
+                
         [BurstCompile]
         struct AsteroidMoveJob : IJobParallelFor
         {

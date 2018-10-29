@@ -8,7 +8,7 @@ using Unity.Mathematics;
 namespace ECS_SpaceShooterDemo
 {
     [UpdateAfter(typeof(AsteroidMoveSystem))]
-    [UpdateAfter(typeof(BoltMoveSystem))]
+    [UpdateAfter(typeof(GameMoveSystem))]
     [UpdateAfter(typeof(AISpawnBoltSystem))]
     [UpdateAfter(typeof(PlayerSpawnBoltSystem))]
     [UpdateBefore(typeof(ECS_SpaceShooterDemo.EntityToInstanceRendererTransform))]
