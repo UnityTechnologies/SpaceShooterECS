@@ -1,11 +1,7 @@
-﻿using System.Collections;
-using System.Collections.Generic;
-using Unity.Burst;
+﻿using Unity.Burst;
 using Unity.Jobs;
-using UnityEngine;
 using Unity.Entities;
 using UnityEngine.ECS.Rendering;
-using UnityEngine.ECS.MathUtils;
 using Unity.Mathematics;
 
 namespace ECS_SpaceShooterDemo
@@ -19,7 +15,7 @@ namespace ECS_SpaceShooterDemo
         {
             public void Execute(ref EntityInstanceRenderData entityInstanceRenderData, ref EntityInstanceRendererTransform transform)
             {
-                transform.matrix = matrix_math_util.LookRotationToMatrix(entityInstanceRenderData.position, entityInstanceRenderData.forward, entityInstanceRenderData.up);
+                transform.matrix = new float4x4(quaternion.LookRotation(entityInstanceRenderData.forward, entityInstanceRenderData.up), entityInstanceRenderData.position);
             }
         }
 

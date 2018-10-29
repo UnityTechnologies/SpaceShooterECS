@@ -5,6 +5,7 @@ using Unity.Collections;
 using Unity.Entities;
 using Unity.Jobs;
 using Unity.Mathematics;
+using Unity.Transforms;
 using UnityEngine;
 
 
@@ -72,7 +73,7 @@ namespace ECS_SpaceShooterDemo
                     EntityInstanceRenderData entityInstanceRenderData = renderDataArray[dataIndex];
                     entityInstanceRenderData.position = boltMoveData.position;
                     entityInstanceRenderData.forward = new float3(0, -1, 0);
-                    entityInstanceRenderData.up = -boltMoveData.forwardDirection;
+                    entityInstanceRenderData.up = new float3(0, 0, 1);
                     renderDataArray[dataIndex] = entityInstanceRenderData;
 
                     EntityBoundCenterData entityBoundCenterData = boundCenterDataArray[dataIndex];
