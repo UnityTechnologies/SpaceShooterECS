@@ -5,6 +5,7 @@ using Unity.Entities;
 using Unity.Collections;
 using Unity.Mathematics;
 using System.Collections.Generic;
+using UnityEngine.ECS.Rendering;
 
 namespace ECS_SpaceShooterDemo
 {
@@ -29,7 +30,7 @@ namespace ECS_SpaceShooterDemo
         struct ForceDependency
         {
             [ReadOnly]
-            public ComponentDataArray<EntityInstanceRenderData> entityInstanceRenderDataArray;
+            public ComponentDataArray<EntityInstanceRendererTransform> entityInstanceRenderTransformArray;
         }
 
         [Inject]

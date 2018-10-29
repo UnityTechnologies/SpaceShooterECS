@@ -16,7 +16,6 @@ namespace ECS_SpaceShooterDemo
 {
     //[UpdateAfter(typeof(UnityEngine.Experimental.PlayerLoop.PreLateUpdate.ParticleSystemBeginUpdateAll))]
     [UpdateAfter(typeof(UnityEngine.Experimental.PlayerLoop.PostLateUpdate.UpdateAllRenderers))]
-    [UpdateAfter(typeof(ECS_SpaceShooterDemo.EntityToInstanceRendererTransform))]
     [UpdateAfter(typeof(ECS_SpaceShooterDemo.CollisionSystem))]
     public class EntityInstanceRendererSystem : GameControllerComponentSystem
 	{

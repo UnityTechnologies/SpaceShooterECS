@@ -4,18 +4,19 @@ using UnityEngine;
 using Unity.Entities;
 using Unity.Mathematics;
 using Unity.Collections;
+using UnityEngine.ECS.Rendering;
 
 namespace ECS_SpaceShooterDemo
 {
     [UpdateAfter(typeof(PlayerInputSystem))]
-    [UpdateBefore(typeof(EntityToInstanceRendererTransform))]
+    [UpdateBefore(typeof(EntityOutOfBoundSystem))]
     public class PlayerMoveSystem : GameControllerJobComponentSystem
     {
         struct PlayerMoveDataGroup
         {
             public ComponentDataArray<PlayerInputData> playerInputDataArray;
             public ComponentDataArray<PlayerMoveData> playerMoveDataArray;
-            public ComponentDataArray<EntityInstanceRenderData> entityInstanceRenderDataArray;
+            public ComponentDataArray<EntityInstanceRendererTransform> entityInstanceRenderTransformArray;
             public ComponentDataArray<EntityBoundCenterData> entityBoundCenterDataArray;
             public ComponentDataArray<EntityBoundMinMaxData> entityBoundMinMaxDataArray;
             [ReadOnly]
@@ -34,7 +35,7 @@ namespace ECS_SpaceShooterDemo
         {
             public ComponentDataArray<PlayerInputData> playerInputDataArray;
             public ComponentDataArray<PlayerMoveData> playerMoveDataArray;
-            public ComponentDataArray<EntityInstanceRenderData> entityInstanceRenderDataArray;
+            public ComponentDataArray<EntityInstanceRendererTransform> entityInstanceRenderTransformArray;
             public ComponentDataArray<EntityBoundCenterData> entityBoundCenterDataArray;
             public ComponentDataArray<EntityBoundMinMaxData> entityBoundMinMaxDataArray;
             [ReadOnly]
@@ -58,13 +59,15 @@ namespace ECS_SpaceShooterDemo
 
                 playerMoveDataArray[index] = playerMoveData;
 
-                EntityInstanceRenderData entityInstanceRenderData = entityInstanceRenderDataArray[index];
-                entityInstanceRenderData.position = playerMoveData.position;
-                entityInstanceRenderData.forward = playerMoveData.forwardDirection;
-                entityInstanceRenderData.up = new float3(0, 1, 0) + (playerMoveData.rightDirection * playerInputData.inputMovementDirection.x);
 
-                entityInstanceRenderDataArray[index] = entityInstanceRenderData;
-
+                EntityInstanceRendererTransform entityInstanceRenderTransform = entityInstanceRenderTransformArray[index];
+        
+                float3 shipUp =  new float3(0, 1, 0) + (playerMoveData.rightDirection * playerInputData.inputMovementDirection.x);
+                entityInstanceRenderTransform.matrix = new float4x4(quaternion.LookRotation(playerMoveData.forwardDirection, shipUp), playerMoveData.position);
+                    
+                entityInstanceRenderTransformArray[index] = entityInstanceRenderTransform;
+                
+                
 
                 EntityBoundCenterData entityBoundCenterData = entityBoundCenterDataArray[index];
                 EntityBoundMinMaxData entityBoundMinMaxData = entityBoundMinMaxDataArray[index];
@@ -86,7 +89,7 @@ namespace ECS_SpaceShooterDemo
             {
                 playerInputDataArray = playerMoveDataGroup.playerInputDataArray,
                 playerMoveDataArray = playerMoveDataGroup.playerMoveDataArray,
-                entityInstanceRenderDataArray = playerMoveDataGroup.entityInstanceRenderDataArray,
+                entityInstanceRenderTransformArray = playerMoveDataGroup.entityInstanceRenderTransformArray,
                 entityBoundCenterDataArray = playerMoveDataGroup.entityBoundCenterDataArray,
                 entityBoundMinMaxDataArray = playerMoveDataGroup.entityBoundMinMaxDataArray,
                 entityBoundOffsetDataArray = playerMoveDataGroup.entityBoundOffsetDataArray,

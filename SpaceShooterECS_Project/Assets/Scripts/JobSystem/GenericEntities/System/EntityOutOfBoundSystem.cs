@@ -11,7 +11,6 @@ namespace ECS_SpaceShooterDemo
     [UpdateAfter(typeof(GameMoveSystem))]
     [UpdateAfter(typeof(AISpawnBoltSystem))]
     [UpdateAfter(typeof(PlayerSpawnBoltSystem))]
-    [UpdateBefore(typeof(ECS_SpaceShooterDemo.EntityToInstanceRendererTransform))]
     public class EntityOutOfBoundSystem : GameControllerJobComponentSystem
     {
         [Inject]

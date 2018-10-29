@@ -9,7 +9,7 @@ using UnityEngine.ECS.Rendering;
 namespace ECS_SpaceShooterDemo
 {
     [UpdateAfter(typeof(GameMoveSystem))]
-    [UpdateBefore(typeof(ECS_SpaceShooterDemo.EntityToInstanceRendererTransform))]
+    [UpdateBefore(typeof(ECS_SpaceShooterDemo.EntityOutOfBoundSystem))]
     public class AISpawnBoltSystem : GameControllerJobComponentSystem
     {
         [Inject]

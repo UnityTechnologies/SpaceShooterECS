@@ -19,8 +19,8 @@ namespace ECS_SpaceShooterDemo
 
             public readonly int Length; //required variable
         }
-        [Inject]
-        SpawnerDataGroup spawnerDataGroup;
+
+        [Inject] SpawnerDataGroup spawnerDataGroup;
 
         struct SpawnerSpawnInfo
         {
@@ -32,12 +32,19 @@ namespace ECS_SpaceShooterDemo
         private NativeList<SpawnerSpawnInfo> spawnerSpawnInfoList;
 
         private Unity.Mathematics.Random randomGenerator;
-        
+
+
+
         protected override void OnCreateManager()
         {
             base.OnCreateManager();
 
-            randomGenerator = new Unity.Mathematics.Random(0x6E624EB7u);
+            //to seed our randomGenerator, we randomly fill a byte array, then convert it to uint32
+            byte[] randomBytes = new byte[4];
+            new System.Random().NextBytes(randomBytes);
+            uint randomGeneratorSeed = System.BitConverter.ToUInt32(randomBytes, 0);
+                        
+            randomGenerator = new Unity.Mathematics.Random(randomGeneratorSeed);
             
             spawnerSpawnInfoList = new NativeList<SpawnerSpawnInfo>(1000, Allocator.Persistent);
         }
@@ -113,7 +120,7 @@ namespace ECS_SpaceShooterDemo
                                                          yPosition, 
                                                          cameraPosition.z - halfFrustumHeight);
 
-                //Spawn the hazard using the index we randomnly generated
+                //Spawn the hazard using the index we randomly generated
                 Entity newHazardEntity = EntityManager.Instantiate(MonoBehaviourECSBridge.Instance.GetPrefabHazardEntity(spawnInfo.hazardIndexToSpawn, spawnInfo.isBackgroundSpawn == 1));
                 //Make sure to remove the prefab "tag" data component
                // EntityManager.RemoveComponent<Prefab>(newHazardEntity);
@@ -143,6 +150,7 @@ namespace ECS_SpaceShooterDemo
                             AIMoveData moveData = EntityManager.GetComponentData<AIMoveData>(newHazardEntity);
                             moveData.position = spawnPositionHazard;
                             moveData.forwardDirection = -forwardDirection;
+                            //moveData.randomGenerator.InitState(randomGenerator.NextUInt()); //reseed 
                             EntityManager.SetComponentData<AIMoveData>(newHazardEntity, moveData);
                         }
                         break;

@@ -28,7 +28,7 @@ namespace ECS_SpaceShooterDemo
         struct InfoForLogicAfterDestroy
         {
             public EntityTypeData entityTypeData;
-            public EntityInstanceRenderData renderData;
+            public EntityInstanceRendererTransform renderTransform;
         }
 
         //Function do some logic after entities have been destroyed (in this case spawn particles)
@@ -39,17 +39,19 @@ namespace ECS_SpaceShooterDemo
             for (int i = 0; i < infoLogicTmpDataArray.Length; i++)
             {
                 InfoForLogicAfterDestroy infoLogic = infoLogicTmpDataArray[i];
+                float4 infoLogicPosition = infoLogic.renderTransform.matrix.c3;
+
                 switch(infoLogic.entityTypeData.entityType)
                 {
                     case EntityTypeData.EntityType.Asteroid:
-                        {
-                            if (infoLogic.renderData.position.y > nonPriorityVFXMaxDistance && MonoBehaviourECSBridge.Instance.asteroidExplosion != null)
+                        {                        
+                            if (infoLogicPosition.y > nonPriorityVFXMaxDistance && MonoBehaviourECSBridge.Instance.asteroidExplosion != null)
                             {
-                                bool priorityParticle = infoLogic.renderData.position.y > priorityVFXMaxDistance ? true : false;
+                                bool priorityParticle = infoLogicPosition.y > priorityVFXMaxDistance ? true : false;
 
                                 MonoBehaviourECSBridge.Instance.asteroidExplosion.SpawnParticle(priorityParticle,
-                                                                                                infoLogic.renderData.position,
-                                                                                                Quaternion.LookRotation(infoLogic.renderData.forward, infoLogic.renderData.up));
+                                                                                                infoLogicPosition.xyz,
+                                                                                                Quaternion.identity);
 
                             }
                         }
@@ -61,25 +63,25 @@ namespace ECS_SpaceShooterDemo
                         break;
                     case EntityTypeData.EntityType.EnemyShip:
                         {
-                            if (infoLogic.renderData.position.y > nonPriorityVFXMaxDistance && MonoBehaviourECSBridge.Instance.enemyExplosion != null)
+                            if (infoLogicPosition.y > nonPriorityVFXMaxDistance && MonoBehaviourECSBridge.Instance.enemyExplosion != null)
                             {
-                                bool priorityParticle = infoLogic.renderData.position.y > priorityVFXMaxDistance ? true : false;
+                                bool priorityParticle = infoLogicPosition.y > priorityVFXMaxDistance ? true : false;
 
                                 MonoBehaviourECSBridge.Instance.enemyExplosion.SpawnParticle(priorityParticle,
-                                                                                                infoLogic.renderData.position,
-                                                                                                Quaternion.LookRotation(infoLogic.renderData.forward, infoLogic.renderData.up));
+                                                                                                infoLogicPosition.xyz,
+                                                                                                Quaternion.identity);
                             }
                         }
                         break;
                     case EntityTypeData.EntityType.AllyShip:
                         {
-                            if (infoLogic.renderData.position.y > nonPriorityVFXMaxDistance && MonoBehaviourECSBridge.Instance.allyExplosion != null)
+                            if (infoLogicPosition.y > nonPriorityVFXMaxDistance && MonoBehaviourECSBridge.Instance.allyExplosion != null)
                             {
-                                bool priorityParticle = infoLogic.renderData.position.y > priorityVFXMaxDistance ? true : false;
+                                bool priorityParticle = infoLogicPosition.y > priorityVFXMaxDistance ? true : false;
 
                                 MonoBehaviourECSBridge.Instance.allyExplosion.SpawnParticle(priorityParticle,
-                                                                                                infoLogic.renderData.position,
-                                                                                                Quaternion.LookRotation(infoLogic.renderData.forward, infoLogic.renderData.up));
+                                                                                            infoLogicPosition.xyz,
+                                                                                            Quaternion.identity);
                             }
                         }
                         break;
@@ -88,8 +90,8 @@ namespace ECS_SpaceShooterDemo
                             if (MonoBehaviourECSBridge.Instance.playerExplosion != null)
                             {
                                 MonoBehaviourECSBridge.Instance.playerExplosion.SpawnParticle(true,
-                                                                                                infoLogic.renderData.position,
-                                                                                                Quaternion.LookRotation(infoLogic.renderData.forward, infoLogic.renderData.up));
+                                                                                                infoLogicPosition.xyz,
+                                                                                              Quaternion.identity);
                             }
                         }
                         break;
@@ -208,11 +210,11 @@ namespace ECS_SpaceShooterDemo
                                 {
                                     //Those type of entity will require some additional logic after destruction,
                                     //create the info needed and add it to the list
-                                    EntityInstanceRenderData entityToDestroyRenderData = entityTransaction.GetComponentData<EntityInstanceRenderData>(entityToDestroy);
+                                    EntityInstanceRendererTransform entityToDestroyRenderTransform = entityTransaction.GetComponentData<EntityInstanceRendererTransform>(entityToDestroy);
                                     InfoForLogicAfterDestroy newInfo = new InfoForLogicAfterDestroy
                                     {
                                         entityTypeData = entityToDestroyTypeData,
-                                        renderData = entityToDestroyRenderData,
+                                        renderTransform = entityToDestroyRenderTransform,
                                     };
                                     infoForLogic.Add(newInfo);
                                 }
@@ -311,5 +313,4 @@ namespace ECS_SpaceShooterDemo
             infoLogicTmpDataList.Dispose();
         }
     }
-
 }
