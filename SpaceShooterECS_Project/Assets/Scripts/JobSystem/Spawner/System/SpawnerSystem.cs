@@ -4,6 +4,7 @@ using UnityEngine;
 using Unity.Entities;
 using Unity.Mathematics;
 using Unity.Collections;
+using Unity.Transforms;
 
 namespace ECS_SpaceShooterDemo
 {
@@ -137,12 +138,23 @@ namespace ECS_SpaceShooterDemo
                             Vector3 spawnRotationAxis = new Vector3(randomGenerator.NextFloat(), 1.0f, randomGenerator.NextFloat());
                             spawnRotationAxis.Normalize();
 
+                            Position newPosition = new Position()
+                            {
+                                Value = spawnPositionHazard,
+                            };
+                            EntityManager.SetComponentData<Position>(newHazardEntity, newPosition);
+
+                            Rotation newRotation = new Rotation()
+                            {
+                                Value = quaternion.LookRotation(spawnRenderForward, spawnRotationAxis),
+                            };
+                            EntityManager.SetComponentData<Rotation>(newHazardEntity, newRotation);
+            
                             AsteroidMoveData moveData = EntityManager.GetComponentData<AsteroidMoveData>(newHazardEntity);
-                            moveData.position = spawnPositionHazard;
-                            moveData.forwardDirection = -forwardDirection;
-                            moveData.renderForward = spawnRenderForward;
+                            moveData.movementSpeed = -forwardDirection * 5.0f;
                             moveData.rotationAxis = spawnRotationAxis;
                             EntityManager.SetComponentData<AsteroidMoveData>(newHazardEntity, moveData);
+                                              
                         }
                         break;
                     case EntityTypeData.EntityType.EnemyShip:
