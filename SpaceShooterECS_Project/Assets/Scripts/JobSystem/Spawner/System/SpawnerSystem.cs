@@ -159,19 +159,32 @@ namespace ECS_SpaceShooterDemo
                         break;
                     case EntityTypeData.EntityType.EnemyShip:
                         {
-                            AIMoveData moveData = EntityManager.GetComponentData<AIMoveData>(newHazardEntity);
-                            moveData.position = spawnPositionHazard;
-                            moveData.forwardDirection = -forwardDirection;
-                            //moveData.randomGenerator.InitState(randomGenerator.NextUInt()); //reseed 
-                            EntityManager.SetComponentData<AIMoveData>(newHazardEntity, moveData);
+                            Position newPosition = new Position()
+                            {
+                                Value = spawnPositionHazard,
+                            };
+                            EntityManager.SetComponentData<Position>(newHazardEntity, newPosition);
+
+                            Rotation newRotation = new Rotation()
+                            {
+                                Value = quaternion.LookRotation(-forwardDirection, new float3(0.0f, 1.0f, 0.0f)),
+                            };
+                            EntityManager.SetComponentData<Rotation>(newHazardEntity, newRotation);
                         }
                         break;
                     case EntityTypeData.EntityType.AllyShip:
                         {
-                            AIMoveData moveData = EntityManager.GetComponentData<AIMoveData>(newHazardEntity);
-                            moveData.position = spawnPositionAlly;
-                            moveData.forwardDirection = forwardDirection;
-                            EntityManager.SetComponentData<AIMoveData>(newHazardEntity, moveData);
+                            Position newPosition = new Position()
+                            {
+                                Value = spawnPositionAlly,
+                            };
+                            EntityManager.SetComponentData<Position>(newHazardEntity, newPosition);
+
+                            Rotation newRotation = new Rotation()
+                            {
+                                Value = quaternion.LookRotation(forwardDirection, new float3(0.0f, 1.0f, 0.0f)),
+                            };
+                            EntityManager.SetComponentData<Rotation>(newHazardEntity, newRotation);
                         }
                         break;
                 }

@@ -128,7 +128,7 @@ namespace ECS_SpaceShooterDemo
                 copyMatricesJobArray[i] = new CopyMatricesJob();
             }
 
-            for (int i = 0;i != m_CacheduniqueRendererTypes.Count;i++)
+            for (int i = 0; i != m_CacheduniqueRendererTypes.Count;i++)
             {
                 UnityEngine.Profiling.Profiler.BeginSample("Unique renderer");
 

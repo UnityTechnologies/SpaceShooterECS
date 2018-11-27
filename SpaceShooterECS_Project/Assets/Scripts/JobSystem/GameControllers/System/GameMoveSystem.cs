@@ -28,6 +28,8 @@ namespace ECS_SpaceShooterDemo
                 None = new ComponentType[] {},
                 All = new ComponentType[]
                 {
+                    typeof(Position), 
+                    typeof(Rotation), 
                     typeof(EntityInstanceRendererTransform), 
                     typeof(EntityBoundCenterData),
                     typeof(EntityBoundMinMaxData),
@@ -43,10 +45,12 @@ namespace ECS_SpaceShooterDemo
             [DeallocateOnJobCompletion] [ReadOnly] public NativeArray<ArchetypeChunk> chunks;
             
             //Optional iComponentData
-            public ArchetypeChunkComponentType<BoltMoveData>    boltMoveDataRW;
-            public ArchetypeChunkComponentType<AIMoveData>    aiMoveDataRW;
+            [ReadOnly] public  ArchetypeChunkComponentType<BoltMoveData>    boltMoveDataRO;
+            [ReadOnly] public ArchetypeChunkComponentType<AIMoveData>    aiMoveDataRO;
             
             //Required iComponentData
+            public ArchetypeChunkComponentType<Position> positionRW;
+            public ArchetypeChunkComponentType<Rotation> rotationRW;    
             public ArchetypeChunkComponentType<EntityInstanceRendererTransform> renderTransformRW;
             public ArchetypeChunkComponentType<EntityBoundCenterData> boundCenterDataRW;
             public ArchetypeChunkComponentType<EntityBoundMinMaxData> boundMinMaxDataRW;
@@ -58,6 +62,8 @@ namespace ECS_SpaceShooterDemo
 
 
             void BoltMove( NativeArray<BoltMoveData> boltMoveDataArray, 
+                            NativeArray<Position> positionArray,
+                            NativeArray<Rotation> rotationArray,
                             NativeArray<EntityInstanceRendererTransform> renderTransformArray,
                             NativeArray<EntityBoundCenterData> boundCenterDataArray,
                             NativeArray<EntityBoundMinMaxData> boundMinMaxDataArray,
@@ -68,23 +74,25 @@ namespace ECS_SpaceShooterDemo
                 int dataCount = boltMoveDataArray.Length;
                 for (int dataIndex = 0; dataIndex < dataCount; dataIndex++)
                 {
+                    Position position = positionArray[dataIndex];
+                    Rotation rotation = rotationArray[dataIndex];                   
                     BoltMoveData boltMoveData = boltMoveDataArray[dataIndex];
-                    boltMoveData.position += (boltMoveData.speed * boltMoveData.forwardDirection * deltaTime);
-                    boltMoveDataArray[dataIndex] = boltMoveData;
 
-                  
+                    float3 forwardDirection = math.forward(rotation.Value);
+                    
+                    position.Value += (boltMoveData.speed * forwardDirection * deltaTime);
+                    positionArray[dataIndex] = position;
+                    
                     EntityInstanceRendererTransform entityInstanceRenderTransform = renderTransformArray[dataIndex];
-                    entityInstanceRenderTransform.matrix = new float4x4(quaternion.LookRotation(new float3(0, -1, 0), new float3(0, 0, 1)), boltMoveData.position);
+                    entityInstanceRenderTransform.matrix = new float4x4(quaternion.LookRotation(new float3(0, -1, 0), new float3(0, 0, 1)), position.Value);
                     renderTransformArray[dataIndex] = entityInstanceRenderTransform;
                     
-
                     EntityBoundCenterData entityBoundCenterData = boundCenterDataArray[dataIndex];
                     EntityBoundMinMaxData entityBoundMinMaxData = boundMinMaxDataArray[dataIndex];
 
-                    entityBoundCenterData.centerPosition = boltMoveData.position + boundOffsetDataArray[dataIndex].offset;
+                    entityBoundCenterData.centerPosition = position.Value + boundOffsetDataArray[dataIndex].offset;
                     entityBoundMinMaxData.min = entityBoundCenterData.centerPosition - boundExtendDataArray[dataIndex].extend;
                     entityBoundMinMaxData.max = entityBoundCenterData.centerPosition + boundExtendDataArray[dataIndex].extend;
-
 
                     boundCenterDataArray[dataIndex] = entityBoundCenterData;
                     boundMinMaxDataArray[dataIndex] = entityBoundMinMaxData;
@@ -92,6 +100,8 @@ namespace ECS_SpaceShooterDemo
             }
             
               void AIMove( NativeArray<AIMoveData> aiMoveDataArray, 
+                          NativeArray<Position> positionArray,
+                          NativeArray<Rotation> rotationArray,
                             NativeArray<EntityInstanceRendererTransform> renderTransformArray,
                             NativeArray<EntityBoundCenterData> boundCenterDataArray,
                             NativeArray<EntityBoundMinMaxData> boundMinMaxDataArray,
@@ -101,18 +111,24 @@ namespace ECS_SpaceShooterDemo
                 int dataCount = aiMoveDataArray.Length;
                 for (int dataIndex = 0; dataIndex < dataCount; dataIndex++)
                 {
+                    Position position = positionArray[dataIndex];
+                    Rotation rotation = rotationArray[dataIndex];                                  
                     AIMoveData aiMoveData = aiMoveDataArray[dataIndex];
-                    aiMoveData.position += (aiMoveData.speed * aiMoveData.forwardDirection * deltaTime);
-                    aiMoveDataArray[dataIndex] = aiMoveData;
+                    
+                    
+                    float3 forwardDirection = math.forward(rotation.Value);
+                    
+                    position.Value += (aiMoveData.speed * forwardDirection * deltaTime);
+                    positionArray[dataIndex] = position;
   
                     EntityInstanceRendererTransform entityInstanceRenderTransform = renderTransformArray[dataIndex];
-                    entityInstanceRenderTransform.matrix = new float4x4(quaternion.LookRotation(aiMoveData.forwardDirection, new float3(0, 1, 0)), aiMoveData.position);
+                    entityInstanceRenderTransform.matrix = new float4x4(quaternion.LookRotation(forwardDirection, new float3(0, 1, 0)), position.Value);
                     renderTransformArray[dataIndex] = entityInstanceRenderTransform;
                     
                     EntityBoundCenterData entityBoundCenterData = boundCenterDataArray[dataIndex];
                     EntityBoundMinMaxData entityBoundMinMaxData = boundMinMaxDataArray[dataIndex];
 
-                    entityBoundCenterData.centerPosition = aiMoveData.position + boundOffsetDataArray[dataIndex].offset;
+                    entityBoundCenterData.centerPosition = position.Value + boundOffsetDataArray[dataIndex].offset;
                     entityBoundMinMaxData.min = entityBoundCenterData.centerPosition - boundExtendDataArray[dataIndex].extend;
                     entityBoundMinMaxData.max = entityBoundCenterData.centerPosition + boundExtendDataArray[dataIndex].extend;
 
@@ -134,10 +150,12 @@ namespace ECS_SpaceShooterDemo
                 }
 
                 //Those are optional in our query, the array could be empty
-                NativeArray<BoltMoveData> boltMoveDataArray = chunk.GetNativeArray(boltMoveDataRW);
-                NativeArray<AIMoveData> aiMoveDataArray = chunk.GetNativeArray(aiMoveDataRW);
+                NativeArray<BoltMoveData> boltMoveDataArray = chunk.GetNativeArray(boltMoveDataRO);
+                NativeArray<AIMoveData> aiMoveDataArray = chunk.GetNativeArray(aiMoveDataRO);
                 
                 //Those are required so they will always exist 
+                NativeArray<Position> positionArray = chunk.GetNativeArray(positionRW);
+                NativeArray<Rotation> rotationArray = chunk.GetNativeArray(rotationRW);
                 NativeArray<EntityInstanceRendererTransform> renderTransformArray = chunk.GetNativeArray(renderTransformRW);
                 NativeArray<EntityBoundCenterData> boundCenterDataArray = chunk.GetNativeArray(boundCenterDataRW);
                 NativeArray<EntityBoundMinMaxData> boundMinMaxDataArray = chunk.GetNativeArray(boundMinMaxDataRW);
@@ -148,11 +166,11 @@ namespace ECS_SpaceShooterDemo
                 //This branching is per chunk, NOT per entity. The array size is the amount of entity in a chunk, each function will go over all entities in the chunk 
                 if (boltMoveDataArray.Length > 0)
                 {
-                    BoltMove(boltMoveDataArray, renderTransformArray, boundCenterDataArray, boundMinMaxDataArray, boundOffsetDataArray, boundExtendDataArray);
+                    BoltMove(boltMoveDataArray, positionArray, rotationArray,renderTransformArray, boundCenterDataArray, boundMinMaxDataArray, boundOffsetDataArray, boundExtendDataArray);
                 }
                 else if (aiMoveDataArray.Length > 0)
                 {
-                    AIMove(aiMoveDataArray, renderTransformArray, boundCenterDataArray, boundMinMaxDataArray, boundOffsetDataArray, boundExtendDataArray);
+                    AIMove(aiMoveDataArray, positionArray, rotationArray, renderTransformArray, boundCenterDataArray, boundMinMaxDataArray, boundOffsetDataArray, boundExtendDataArray);
                 }
                 
             }
@@ -161,8 +179,11 @@ namespace ECS_SpaceShooterDemo
         
         protected override JobHandle OnUpdate(JobHandle inputDeps)
         {         
-            ArchetypeChunkComponentType<BoltMoveData> boltMoveDataRW = GetArchetypeChunkComponentType<BoltMoveData>(false);
-            ArchetypeChunkComponentType<AIMoveData> aiMoveDataRW = GetArchetypeChunkComponentType<AIMoveData>(false);
+            ArchetypeChunkComponentType<BoltMoveData> boltMoveDataRO = GetArchetypeChunkComponentType<BoltMoveData>(true);
+            ArchetypeChunkComponentType<AIMoveData> aiMoveDataRO = GetArchetypeChunkComponentType<AIMoveData>(true);
+            ArchetypeChunkComponentType<Position> positionRW = GetArchetypeChunkComponentType<Position>(false);
+            ArchetypeChunkComponentType<Rotation> rotationRW = GetArchetypeChunkComponentType<Rotation>(false);    
+            
             ArchetypeChunkComponentType<EntityInstanceRendererTransform> renderTransformRW = GetArchetypeChunkComponentType<EntityInstanceRendererTransform>(false);
             ArchetypeChunkComponentType<EntityBoundCenterData> boundCenterDataRW = GetArchetypeChunkComponentType<EntityBoundCenterData>(false);
             ArchetypeChunkComponentType<EntityBoundMinMaxData> boundMinMaxDataRW = GetArchetypeChunkComponentType<EntityBoundMinMaxData>(false);
@@ -180,8 +201,10 @@ namespace ECS_SpaceShooterDemo
             GameMoveJob moveJob = new GameMoveJob
             {
                 chunks = moveDataChunk,
-                boltMoveDataRW = boltMoveDataRW,
-                aiMoveDataRW = aiMoveDataRW,
+                boltMoveDataRO = boltMoveDataRO,
+                aiMoveDataRO = aiMoveDataRO,
+                positionRW = positionRW,
+                rotationRW = rotationRW,                           
                 renderTransformRW = renderTransformRW,
                 boundCenterDataRW = boundCenterDataRW,
                 boundMinMaxDataRW = boundMinMaxDataRW,

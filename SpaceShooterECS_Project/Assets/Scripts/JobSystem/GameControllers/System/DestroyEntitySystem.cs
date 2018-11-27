@@ -56,11 +56,6 @@ namespace ECS_SpaceShooterDemo
                             }
                         }
                         break;
-                    case EntityTypeData.EntityType.Bolt:
-                        {
-
-                        }
-                        break;
                     case EntityTypeData.EntityType.EnemyShip:
                         {
                             if (infoLogicPosition.y > nonPriorityVFXMaxDistance && MonoBehaviourECSBridge.Instance.enemyExplosion != null)
@@ -219,17 +214,13 @@ namespace ECS_SpaceShooterDemo
                                     infoForLogic.Add(newInfo);
                                 }
                                 break;
-                            case EntityTypeData.EntityType.Bolt:
+                            case EntityTypeData.EntityType.PlayerBolt:
                                 {
                                     //Player bolts are only destroyed when they collided with enemies or obstacle,
                                     // add to the score in that case 
-                                    BoltTypeData boltTypeData = entityTransaction.GetSharedComponentData<BoltTypeData>(entityToDestroy);
-                                    if (boltTypeData.boltType == BoltTypeData.BoltType.PlayerBolt)
-                                    {
-                                        UIData uiData = uiDataArray[0];
-                                        uiData.score += scoreValue;
-                                        uiDataArray[0] = uiData;
-                                    }
+                                    UIData uiData = uiDataArray[0];
+                                    uiData.score += scoreValue;
+                                    uiDataArray[0] = uiData;
                                 }
                                 break;
                         }

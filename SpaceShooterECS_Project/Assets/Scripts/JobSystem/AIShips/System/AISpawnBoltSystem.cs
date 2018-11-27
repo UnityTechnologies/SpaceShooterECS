@@ -1,9 +1,11 @@
-﻿using Unity.Burst;
+﻿using System.Collections.Generic;
+using Unity.Burst;
 using Unity.Jobs;
 using UnityEngine;
 using Unity.Entities;
 using Unity.Mathematics;
 using Unity.Collections;
+using Unity.Transforms;
 using UnityEngine.ECS.Rendering;
 
 namespace ECS_SpaceShooterDemo
@@ -15,25 +17,20 @@ namespace ECS_SpaceShooterDemo
         [Inject]
         BoltSpawnerEntityDataGroup boltSpawnerEntityDataGroup;
 
+        ComponentGroup aiSpawnBoltDataGroup = null;
 
-        struct AIMoveSpawnBoltDataGroup
-        {
-            public EntityArray entityArray;
-            public ComponentDataArray<AIMoveData> aiMoveDataArray;
-            public ComponentDataArray<AISpawnBoltData> aiSpawnBoltDataArray;
-
-            public readonly int Length; //required variable
-        }
-        [Inject]
-        AIMoveSpawnBoltDataGroup aiMoveSpawnBoltDataGroup;
-
+        List<EntityTypeData> uniqueEntityTypes = new List<EntityTypeData>(10);
+        
+        
         [BurstCompileAttribute(Accuracy.Med, Support.Relaxed)]
         struct AISpawnBoltJob : IJobParallelFor
         {
             [ReadOnly]
             public EntityArray entityArray;
             [ReadOnly]
-            public ComponentDataArray<AIMoveData> aiMoveDataArray;
+            public ComponentDataArray<Position> aiPositionArray;
+            [ReadOnly]
+            public ComponentDataArray<Rotation> aiRotationArray;
 
             public ComponentDataArray<AISpawnBoltData> aiSpawnBoltDataArray;
             public NativeQueue<Entity>.Concurrent spawnBoltEntityQueue;
@@ -42,11 +39,14 @@ namespace ECS_SpaceShooterDemo
 
             public void Execute(int index)
             {
-                AIMoveData aiMoveData = aiMoveDataArray[index];
+                Position aiPosition = aiPositionArray[index];
+                Rotation aiRotation = aiRotationArray[index];
                 AISpawnBoltData aiSpawnBoltData = aiSpawnBoltDataArray[index];
 
-                aiSpawnBoltData.spawnPosition = aiMoveData.position + (aiMoveData.forwardDirection * aiSpawnBoltData.offset);
-                aiSpawnBoltData.spawnDirection = aiMoveData.forwardDirection;
+
+                float3 forwardDirection = math.forward(aiRotation.Value);
+                aiSpawnBoltData.spawnPosition = aiPosition.Value + ( forwardDirection * aiSpawnBoltData.offset);
+                aiSpawnBoltData.spawnDirection = forwardDirection;
                 aiSpawnBoltData.timeSinceFire += deltaTime;
 
                 if (aiSpawnBoltData.timeSinceFire > aiSpawnBoltData.fireRate)
@@ -58,20 +58,60 @@ namespace ECS_SpaceShooterDemo
             }
         }
 
+        protected override void OnCreateManager()
+        {
+            base.OnCreateManager();
+            
+            aiSpawnBoltDataGroup = GetComponentGroup(typeof(Position), typeof(Rotation), typeof(AISpawnBoltData), typeof(EntityTypeData));
+            
+        }
+
         protected override JobHandle OnUpdate(JobHandle inputDeps)
         {
-            AISpawnBoltJob aiSpawnBoltJob = new AISpawnBoltJob
-            {
-                entityArray = aiMoveSpawnBoltDataGroup.entityArray,
-                aiMoveDataArray = aiMoveSpawnBoltDataGroup.aiMoveDataArray,
-                aiSpawnBoltDataArray = aiMoveSpawnBoltDataGroup.aiSpawnBoltDataArray,
-                spawnBoltEntityQueue = boltSpawnerEntityDataGroup.boltSpawnerEntityData[0].aiBoltSpawnQueueConcurrent,
-                deltaTime = Time.deltaTime
-            };
+            uniqueEntityTypes.Clear();
+            EntityManager.GetAllUniqueSharedComponentData(uniqueEntityTypes);
+            
 
-            return aiSpawnBoltJob.Schedule(aiMoveSpawnBoltDataGroup.Length,
-                                           MonoBehaviourECSBridge.Instance.GetJobBatchCount(aiMoveSpawnBoltDataGroup.Length),
-                                           inputDeps);
+            JobHandle spawnJobHandle = new JobHandle();
+            JobHandle spawnJobDependency = inputDeps;
+            for (int i = 0; i != uniqueEntityTypes.Count; i++)
+            {
+                EntityTypeData entityTypeData = uniqueEntityTypes[i];
+                if (entityTypeData.entityType == EntityTypeData.EntityType.EnemyShip
+                    || entityTypeData.entityType == EntityTypeData.EntityType.AllyShip)
+                {
+                    aiSpawnBoltDataGroup.SetFilter(uniqueEntityTypes[i]);
+                    
+                    NativeQueue<Entity>.Concurrent spawnBoltEntityQueueToUse = boltSpawnerEntityDataGroup
+                        .boltSpawnerEntityData[0].enemyBoltSpawnQueueConcurrent;
+                    if (entityTypeData.entityType == EntityTypeData.EntityType.AllyShip)
+                    {
+                        spawnBoltEntityQueueToUse = boltSpawnerEntityDataGroup.boltSpawnerEntityData[0]
+                            .allyBoltSpawnQueueConcurrent;
+                    }
+
+
+                    AISpawnBoltJob aiSpawnBoltJob = new AISpawnBoltJob
+                    {
+                        entityArray = aiSpawnBoltDataGroup.GetEntityArray(),
+                        aiPositionArray = aiSpawnBoltDataGroup.GetComponentDataArray<Position>(),
+                        aiRotationArray = aiSpawnBoltDataGroup.GetComponentDataArray<Rotation>(),
+                        aiSpawnBoltDataArray = aiSpawnBoltDataGroup.GetComponentDataArray<AISpawnBoltData>(),
+                        spawnBoltEntityQueue = spawnBoltEntityQueueToUse,
+                        deltaTime = Time.deltaTime
+                    };
+
+                    JobHandle tmpJobHandle = aiSpawnBoltJob.Schedule(aiSpawnBoltJob.aiSpawnBoltDataArray.Length,
+                        MonoBehaviourECSBridge.Instance.GetJobBatchCount(aiSpawnBoltJob.aiSpawnBoltDataArray.Length),
+                        spawnJobDependency);
+                    
+                    spawnJobHandle = JobHandle.CombineDependencies(spawnJobHandle, tmpJobHandle);
+                    spawnJobDependency = JobHandle.CombineDependencies(spawnJobDependency, tmpJobHandle);
+                }
+            }
+            aiSpawnBoltDataGroup.ResetFilter();
+
+            return spawnJobHandle;
         }
 
     }

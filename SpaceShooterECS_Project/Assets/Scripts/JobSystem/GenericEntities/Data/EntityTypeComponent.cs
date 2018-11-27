@@ -12,9 +12,11 @@ namespace ECS_SpaceShooterDemo
         public enum EntityType
         {
             Asteroid = 0,
-            Bolt,
+            EnemyBolt,
             EnemyShip,
+            AllyBolt,
             AllyShip,
+            PlayerBolt,
             PlayerShip,
 
             GameplaySpawner,

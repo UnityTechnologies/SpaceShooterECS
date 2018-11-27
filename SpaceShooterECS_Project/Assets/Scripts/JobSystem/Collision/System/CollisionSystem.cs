@@ -128,7 +128,9 @@ namespace ECS_SpaceShooterDemo
                         cellSizeEntityDictionary.Add(entityType, collisionHashMapSmallCellSizes);
                     }
                     break;
-                case EntityTypeData.EntityType.Bolt:
+                case EntityTypeData.EntityType.EnemyBolt:
+                case EntityTypeData.EntityType.AllyBolt:
+                case EntityTypeData.EntityType.PlayerBolt:
                     cellEntityTypeDictionary.Add(entityType, new NativeMultiHashMap<int, HashMapData>(600000, Allocator.Persistent));
                     if (!cellSizeEntityDictionary.ContainsKey(entityType))
                     {
@@ -490,15 +492,18 @@ namespace ECS_SpaceShooterDemo
 
             JobHandle previousCollisionJobHandle = new JobHandle();
 
-            previousCollisionJobHandle = scheduleCollisionJob(EntityTypeData.EntityType.Asteroid, EntityTypeData.EntityType.Bolt, previousCollisionJobHandle);
+            previousCollisionJobHandle = scheduleCollisionJob(EntityTypeData.EntityType.Asteroid, EntityTypeData.EntityType.PlayerBolt, previousCollisionJobHandle);            
             previousCollisionJobHandle = scheduleCollisionJob(EntityTypeData.EntityType.Asteroid, EntityTypeData.EntityType.EnemyShip, previousCollisionJobHandle);
             previousCollisionJobHandle = scheduleCollisionJob(EntityTypeData.EntityType.Asteroid, EntityTypeData.EntityType.AllyShip, previousCollisionJobHandle);
-            previousCollisionJobHandle = scheduleCollisionJob(EntityTypeData.EntityType.EnemyShip, EntityTypeData.EntityType.Bolt, previousCollisionJobHandle);
+            
+            previousCollisionJobHandle = scheduleCollisionJob(EntityTypeData.EntityType.EnemyShip, EntityTypeData.EntityType.AllyBolt, previousCollisionJobHandle);
+            previousCollisionJobHandle = scheduleCollisionJob(EntityTypeData.EntityType.EnemyShip, EntityTypeData.EntityType.PlayerBolt, previousCollisionJobHandle);
             previousCollisionJobHandle = scheduleCollisionJob(EntityTypeData.EntityType.EnemyShip, EntityTypeData.EntityType.AllyShip, previousCollisionJobHandle);
-            previousCollisionJobHandle = scheduleCollisionJob(EntityTypeData.EntityType.AllyShip, EntityTypeData.EntityType.Bolt, previousCollisionJobHandle);
+            
+            previousCollisionJobHandle = scheduleCollisionJob(EntityTypeData.EntityType.AllyShip, EntityTypeData.EntityType.EnemyBolt, previousCollisionJobHandle);
 
             previousCollisionJobHandle = scheduleCollisionJob(EntityTypeData.EntityType.PlayerShip, EntityTypeData.EntityType.Asteroid, previousCollisionJobHandle);
-            previousCollisionJobHandle = scheduleCollisionJob(EntityTypeData.EntityType.PlayerShip, EntityTypeData.EntityType.Bolt, previousCollisionJobHandle);
+            previousCollisionJobHandle = scheduleCollisionJob(EntityTypeData.EntityType.PlayerShip, EntityTypeData.EntityType.EnemyBolt, previousCollisionJobHandle);
             previousCollisionJobHandle = scheduleCollisionJob(EntityTypeData.EntityType.PlayerShip, EntityTypeData.EntityType.EnemyShip, previousCollisionJobHandle);
 
 

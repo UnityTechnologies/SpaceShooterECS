@@ -11,7 +11,8 @@ namespace ECS_SpaceShooterDemo
 {
     public struct BoltSpawnerEntityData : IComponentData
     {
-        public NativeQueue<Entity>.Concurrent aiBoltSpawnQueueConcurrent;
+        public NativeQueue<Entity>.Concurrent enemyBoltSpawnQueueConcurrent;
+        public NativeQueue<Entity>.Concurrent allyBoltSpawnQueueConcurrent;
         public NativeQueue<Entity>.Concurrent playerBoltSpawnQueueConcurrent;
     }
 

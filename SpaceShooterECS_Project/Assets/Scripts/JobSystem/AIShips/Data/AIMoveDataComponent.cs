@@ -9,8 +9,6 @@ namespace ECS_SpaceShooterDemo
     [System.Serializable]
     public struct AIMoveData : IComponentData
     {
-        public float3 position;
-        public float3 forwardDirection;
         public float speed;
     }
 
