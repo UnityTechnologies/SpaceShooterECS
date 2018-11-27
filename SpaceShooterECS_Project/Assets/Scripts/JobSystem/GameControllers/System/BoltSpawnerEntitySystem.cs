@@ -34,6 +34,7 @@ namespace ECS_SpaceShooterDemo
         Entity prefabPlayerBolt;
 
         //Jobs that will go over all newly spawned bolt and set their BoltMoveData values
+        //TODO: Enabling burst compile makes the enemy bolt go the wrong direction, figure out why
         //[BurstCompile]
         struct SetAIBoltMoveDataJob : IJobParallelFor
         {
