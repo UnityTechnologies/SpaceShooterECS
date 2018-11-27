@@ -4,6 +4,7 @@ using UnityEngine;
 using Unity.Entities;
 using Unity.Mathematics;
 using Unity.Collections;
+using Unity.Transforms;
 
 
 namespace ECS_SpaceShooterDemo
@@ -15,6 +16,7 @@ namespace ECS_SpaceShooterDemo
         struct PlayerGroup
         {
             [ReadOnly] public ComponentDataArray<PlayerMoveData> playerMoveData; //Use PlayerMoveData as a tag, only player entities have it
+            [ReadOnly] public ComponentDataArray<Position> playerPosition;
             [ReadOnly] public EntityArray entities;
 
             public readonly int Length; //required variable
@@ -77,10 +79,25 @@ namespace ECS_SpaceShooterDemo
 
             //Spawn player 1
             Entity newPlayer = EntityManager.Instantiate(MonoBehaviourECSBridge.Instance.playerEntityPrefab);
+
+            float3 forwardDirection = new float3(0.0f, 0.0f, 1.0f);
+            
+            Position newPosition = new Position()
+            {
+                Value = MonoBehaviourECSBridge.Instance.playerStartPosition[playerGroup.Length].position,
+            };
+            EntityManager.SetComponentData<Position>(newPlayer, newPosition);
+
+            Rotation newRotation = new Rotation()
+            {
+                Value = quaternion.LookRotation(forwardDirection, new float3(0.0f, 1.0f, 0.0f)),
+            };
+            EntityManager.SetComponentData<Rotation>(newPlayer, newRotation);
+            
             PlayerMoveData playerMoveData = EntityManager.GetComponentData<PlayerMoveData>(newPlayer);
-            playerMoveData.position = MonoBehaviourECSBridge.Instance.playerStartPosition[playerGroup.Length].position;
-            playerMoveData.forwardDirection = new float3(0.0f, 0.0f, 1.0f);
+            playerMoveData.forwardDirection = forwardDirection;
             playerMoveData.rightDirection = new float3(1.0f, 0.0f, 0.0f);
+                   
             EntityManager.SetComponentData<PlayerMoveData>(newPlayer, playerMoveData);
 
             //Recreate the enemy spawner for the player
@@ -89,7 +106,7 @@ namespace ECS_SpaceShooterDemo
                 gameplaySpawnerEntity = EntityManager.Instantiate(MonoBehaviourECSBridge.Instance.gameplaySpawnerPrefab);
 
                 SpawnerPositionData positionData = EntityManager.GetComponentData<SpawnerPositionData>(gameplaySpawnerEntity);
-                positionData.position.y = playerMoveData.position.y;
+                positionData.position.y = newPosition.Value.y;
                 EntityManager.SetComponentData<SpawnerPositionData>(gameplaySpawnerEntity, positionData);
 
                 SpawnerHazardData hazardData = EntityManager.GetComponentData<SpawnerHazardData>(gameplaySpawnerEntity);
@@ -165,7 +182,7 @@ namespace ECS_SpaceShooterDemo
             }
             else
             {
-                MonoBehaviourECSBridge.Instance.playerPosition = playerGroup.playerMoveData[0].position;
+                MonoBehaviourECSBridge.Instance.playerPosition = playerGroup.playerPosition[0].Value;
             }
 
             //If we deleted or created entities we will need to update our injected component group

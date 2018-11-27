@@ -4,6 +4,7 @@ using UnityEngine;
 using Unity.Entities;
 using Unity.Mathematics;
 using Unity.Collections;
+using Unity.Transforms;
 using UnityEngine.ECS.Rendering;
 
 namespace ECS_SpaceShooterDemo
@@ -16,6 +17,8 @@ namespace ECS_SpaceShooterDemo
         {
             public ComponentDataArray<PlayerInputData> playerInputDataArray;
             public ComponentDataArray<PlayerMoveData> playerMoveDataArray;
+            public ComponentDataArray<Position> playerPositionDataArray;
+            public ComponentDataArray<Rotation> playerRotationDataArray;
             public ComponentDataArray<EntityInstanceRendererTransform> entityInstanceRenderTransformArray;
             public ComponentDataArray<EntityBoundCenterData> entityBoundCenterDataArray;
             public ComponentDataArray<EntityBoundMinMaxData> entityBoundMinMaxDataArray;
@@ -33,8 +36,10 @@ namespace ECS_SpaceShooterDemo
         //[BurstCompileAttribute(Accuracy.Med, Support.Relaxed)]
         struct PlayerMoveJob : IJobParallelFor
         {
-            public ComponentDataArray<PlayerInputData> playerInputDataArray;
-            public ComponentDataArray<PlayerMoveData> playerMoveDataArray;
+            [ReadOnly] public ComponentDataArray<PlayerInputData> playerInputDataArray;
+            [ReadOnly] public ComponentDataArray<PlayerMoveData> playerMoveDataArray;
+            public ComponentDataArray<Position> playerPositionDataArray;
+            public ComponentDataArray<Rotation> playerRotationDataArray;
             public ComponentDataArray<EntityInstanceRendererTransform> entityInstanceRenderTransformArray;
             public ComponentDataArray<EntityBoundCenterData> entityBoundCenterDataArray;
             public ComponentDataArray<EntityBoundMinMaxData> entityBoundMinMaxDataArray;
@@ -48,31 +53,34 @@ namespace ECS_SpaceShooterDemo
             {
                 PlayerInputData playerInputData = playerInputDataArray[index];
                 PlayerMoveData playerMoveData = playerMoveDataArray[index];
-
+                Position playerPosition = playerPositionDataArray[index];
+                Rotation playerRotation = playerRotationDataArray[index];
+                
+                float3 shipUp =  new float3(0, 1, 0) + (playerMoveData.rightDirection * playerInputData.inputMovementDirection.x);
+                
                 float3 movementVector = playerMoveData.rightDirection * playerInputData.inputMovementDirection.x
                                          + playerMoveData.forwardDirection * playerInputData.inputMovementDirection.z;
+                
+                playerPosition.Value += (playerMoveData.speed * movementVector * deltaTime);
 
-                playerMoveData.position += (playerMoveData.speed * movementVector * deltaTime);
+                playerPosition.Value = math.clamp(playerPosition.Value, playerMoveData.minBoundary, playerMoveData.maxBoundary);
 
-                playerMoveData.position = math.clamp(playerMoveData.position, playerMoveData.minBoundary, playerMoveData.maxBoundary);
-
-
-                playerMoveDataArray[index] = playerMoveData;
-
+                playerRotation.Value = quaternion.LookRotation(playerMoveData.forwardDirection, shipUp);
+                
+                playerPositionDataArray[index] = playerPosition;
+                playerRotationDataArray[index] = playerRotation;
+                
 
                 EntityInstanceRendererTransform entityInstanceRenderTransform = entityInstanceRenderTransformArray[index];
-        
-                float3 shipUp =  new float3(0, 1, 0) + (playerMoveData.rightDirection * playerInputData.inputMovementDirection.x);
-                entityInstanceRenderTransform.matrix = new float4x4(quaternion.LookRotation(playerMoveData.forwardDirection, shipUp), playerMoveData.position);
+                    
+                entityInstanceRenderTransform.matrix = new float4x4(quaternion.LookRotation(playerMoveData.forwardDirection, shipUp), playerPosition.Value);
                     
                 entityInstanceRenderTransformArray[index] = entityInstanceRenderTransform;
                 
-                
-
                 EntityBoundCenterData entityBoundCenterData = entityBoundCenterDataArray[index];
                 EntityBoundMinMaxData entityBoundMinMaxData = entityBoundMinMaxDataArray[index];
 
-                entityBoundCenterData.centerPosition = playerMoveData.position + entityBoundOffsetDataArray[index].offset;
+                entityBoundCenterData.centerPosition = playerPosition.Value + entityBoundOffsetDataArray[index].offset;
                 entityBoundMinMaxData.min = entityBoundCenterData.centerPosition - entityBoundExtendDataArray[index].extend;
                 entityBoundMinMaxData.max = entityBoundCenterData.centerPosition + entityBoundExtendDataArray[index].extend;
 
@@ -89,6 +97,8 @@ namespace ECS_SpaceShooterDemo
             {
                 playerInputDataArray = playerMoveDataGroup.playerInputDataArray,
                 playerMoveDataArray = playerMoveDataGroup.playerMoveDataArray,
+                playerPositionDataArray = playerMoveDataGroup.playerPositionDataArray,
+                playerRotationDataArray = playerMoveDataGroup.playerRotationDataArray,
                 entityInstanceRenderTransformArray = playerMoveDataGroup.entityInstanceRenderTransformArray,
                 entityBoundCenterDataArray = playerMoveDataGroup.entityBoundCenterDataArray,
                 entityBoundMinMaxDataArray = playerMoveDataGroup.entityBoundMinMaxDataArray,

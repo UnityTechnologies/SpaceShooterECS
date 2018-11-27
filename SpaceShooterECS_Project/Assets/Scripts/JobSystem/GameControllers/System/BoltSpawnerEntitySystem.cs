@@ -34,8 +34,7 @@ namespace ECS_SpaceShooterDemo
         Entity prefabPlayerBolt;
 
         //Jobs that will go over all newly spawned bolt and set their BoltMoveData values
-        //TODO: Enabling burst compile makes the enemy bolt go the wrong direction, figure out why
-        //[BurstCompile]
+        [BurstCompile]
         struct SetAIBoltMoveDataJob : IJobParallelFor
         {
             //List of entities we spawned from
@@ -55,6 +54,8 @@ namespace ECS_SpaceShooterDemo
 
             //We need to tell the safety system to allow us to write in a parallel for job
             //This is safe in this case because we are accessing unique entity in each execute call (newly spawned entities)
+            [NativeDisableParallelForRestriction] 
+            public ComponentDataFromEntity<BoltMoveData> boltMoveDataFromEntity;
             [NativeDisableParallelForRestriction]
             public ComponentDataFromEntity<Position> boltPositionFromEntity;
             [NativeDisableParallelForRestriction]
@@ -65,16 +66,16 @@ namespace ECS_SpaceShooterDemo
                 //Get the spawning information from the entity we spawned from
                 AISpawnBoltData spawnBoltData = aiSpawnBoltDataFromEntity[spawningFromEntityList[index]];
                 //Get our Bolt position/rotation
+                BoltMoveData boltMoveData = boltMoveDataFromEntity[spawnedBoltEntityArray[index]];
                 Position boltPosition = boltPositionFromEntity[spawnedBoltEntityArray[index]];
                 Rotation boltRotation = boltRotationFromEntity[spawnedBoltEntityArray[index]];
 
                 //Set our initial values
-
-                float3 boltDirection = spawnBoltData.spawnDirection;
-                
+                boltMoveData.forwardDirection = spawnBoltData.spawnDirection;
                 boltPosition.Value = spawnBoltData.spawnPosition;
-                boltRotation.Value = quaternion.LookRotation(boltDirection, new float3(0.0f, 1.0f, 0.0f));
+                boltRotation.Value = quaternion.LookRotation(new float3(0, -1, 0), new float3(0, 0, 1));
 
+                boltMoveDataFromEntity[spawnedBoltEntityArray[index]] = boltMoveData;
                 boltPositionFromEntity[spawnedBoltEntityArray[index]] = boltPosition;
                 boltRotationFromEntity[spawnedBoltEntityArray[index]] = boltRotation;
             }
@@ -169,9 +170,14 @@ namespace ECS_SpaceShooterDemo
 
                     Rotation newRotation = new Rotation()
                     {
-                        Value = quaternion.LookRotation(spawnBoltData.spawnDirection, new float3(0.0f, 1.0f, 0.0f)),
+                        Value = quaternion.LookRotation(new float3(0, -1, 0), new float3(0, 0, 1)),
                     };
                     EntityManager.SetComponentData<Rotation>(newSpawnedBoltEntityArray[i], newRotation);
+                    
+                    BoltMoveData boltMoveData = EntityManager.GetComponentData<BoltMoveData>(newSpawnedBoltEntityArray[i]);
+                    boltMoveData.forwardDirection = spawnBoltData.spawnDirection;
+                    EntityManager.SetComponentData<BoltMoveData>(newSpawnedBoltEntityArray[i], boltMoveData);
+
                 }
 
                 newSpawnedBoltEntityArray.Dispose();
@@ -185,6 +191,7 @@ namespace ECS_SpaceShooterDemo
                     spawningFromEntityList = entityList,
                     spawnedBoltEntityArray = newSpawnedBoltEntityArray,
                     aiSpawnBoltDataFromEntity = GetComponentDataFromEntity<AISpawnBoltData>(),
+                    boltMoveDataFromEntity = GetComponentDataFromEntity<BoltMoveData>(),
                     boltPositionFromEntity = GetComponentDataFromEntity<Position>(),
                     boltRotationFromEntity = GetComponentDataFromEntity<Rotation>(),
                 };

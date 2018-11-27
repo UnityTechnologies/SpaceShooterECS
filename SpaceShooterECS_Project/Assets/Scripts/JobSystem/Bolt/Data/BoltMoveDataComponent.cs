@@ -10,6 +10,7 @@ namespace ECS_SpaceShooterDemo
     public struct BoltMoveData : IComponentData
     {
         public float speed;
+        public float3 forwardDirection;
     }
 
 

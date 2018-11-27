@@ -78,11 +78,11 @@ namespace ECS_SpaceShooterDemo
                     Rotation rotation = rotationArray[dataIndex];                   
                     BoltMoveData boltMoveData = boltMoveDataArray[dataIndex];
 
-                    float3 forwardDirection = math.forward(rotation.Value);
+                    float3 forwardDirection = boltMoveData.forwardDirection;
                     
                     position.Value += (boltMoveData.speed * forwardDirection * deltaTime);
                     positionArray[dataIndex] = position;
-                    
+                                     
                     EntityInstanceRendererTransform entityInstanceRenderTransform = renderTransformArray[dataIndex];
                     entityInstanceRenderTransform.matrix = new float4x4(quaternion.LookRotation(new float3(0, -1, 0), new float3(0, 0, 1)), position.Value);
                     renderTransformArray[dataIndex] = entityInstanceRenderTransform;

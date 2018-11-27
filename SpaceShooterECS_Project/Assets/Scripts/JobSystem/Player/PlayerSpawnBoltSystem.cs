@@ -4,6 +4,7 @@ using UnityEngine;
 using Unity.Entities;
 using Unity.Mathematics;
 using Unity.Collections;
+using Unity.Transforms;
 using UnityEngine.ECS.Rendering;
 
 namespace ECS_SpaceShooterDemo
@@ -21,6 +22,7 @@ namespace ECS_SpaceShooterDemo
             public EntityArray entityArray;
             public ComponentDataArray<PlayerInputData> playerInputDataArray;
             public ComponentDataArray<PlayerMoveData> playerMoveDataArray;
+            public ComponentDataArray<Position> playerPositionArray;
             public ComponentDataArray<PlayerSpawnBoltData> playerSpawnBoltDataArray;
 
             public readonly int Length; //required variable
@@ -38,6 +40,9 @@ namespace ECS_SpaceShooterDemo
             [ReadOnly]
             public ComponentDataArray<PlayerMoveData> playerMoveDataArray;
 
+            [ReadOnly] 
+            public ComponentDataArray<Position> playerPositionArray;
+
             public ComponentDataArray<PlayerSpawnBoltData> playerSpawnBoltDataArray;
             public NativeQueue<Entity>.Concurrent spawnBoltEntityQueue;
 
@@ -47,6 +52,7 @@ namespace ECS_SpaceShooterDemo
             {
                 PlayerInputData playerInputData = playerInputDataArray[index];
                 PlayerMoveData playerMoveData = playerMoveDataArray[index];
+                Position playerPosition = playerPositionArray[index];
                 PlayerSpawnBoltData playerSpawnBoltData = playerSpawnBoltDataArray[index];
 
                 if(playerInputData.fireButtonPressed == 1 && currentTime >= playerSpawnBoltData.nextFireTime)
@@ -55,7 +61,7 @@ namespace ECS_SpaceShooterDemo
                     spawnBoltEntityQueue.Enqueue(entityArray[index]);
                 }
 
-                playerSpawnBoltData.spawnPosition = playerMoveData.position + (playerMoveData.forwardDirection * playerSpawnBoltData.offset);
+                playerSpawnBoltData.spawnPosition = playerPosition.Value + (playerMoveData.forwardDirection * playerSpawnBoltData.offset);
                 playerSpawnBoltData.spawnDirection = playerMoveData.forwardDirection;
 
                 playerSpawnBoltDataArray[index] = playerSpawnBoltData;
@@ -69,6 +75,7 @@ namespace ECS_SpaceShooterDemo
                 entityArray = playerMoveSpawnBoltDataGroup.entityArray,
                 playerInputDataArray = playerMoveSpawnBoltDataGroup.playerInputDataArray,
                 playerMoveDataArray = playerMoveSpawnBoltDataGroup.playerMoveDataArray,
+                playerPositionArray = playerMoveSpawnBoltDataGroup.playerPositionArray,
                 playerSpawnBoltDataArray = playerMoveSpawnBoltDataGroup.playerSpawnBoltDataArray,
                 spawnBoltEntityQueue = boltSpawnerEntityDataGroup.boltSpawnerEntityData[0].playerBoltSpawnQueueConcurrent,
                 currentTime = Time.time,
