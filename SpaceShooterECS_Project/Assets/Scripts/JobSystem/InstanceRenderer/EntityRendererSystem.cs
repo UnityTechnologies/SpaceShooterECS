@@ -30,14 +30,14 @@ namespace ECS_SpaceShooterDemo
 	    List<EntityInstanceRenderer> m_CacheduniqueRendererTypes = new List<EntityInstanceRenderer>(10);
 	    ComponentGroup              m_InstanceRendererGroup;
 
-        public unsafe static void CopyMatrices(ComponentDataArray<EntityInstanceRendererTransform> transforms, int beginIndex, int length, Matrix4x4[] outMatrices)
+        public unsafe static void CopyMatrices(ComponentDataArray<LocalToWorld> transforms, int beginIndex, int length, Matrix4x4[] outMatrices)
         {
 	        // @TODO: This is only unsafe because the Unity DrawInstances API takes a Matrix4x4[] instead of NativeArray.
 	        ///       And we also want the code to be really fast.
             fixed (Matrix4x4* matricesPtr = outMatrices)
             {
-                UnityEngine.Assertions.Assert.AreEqual(sizeof(Matrix4x4), sizeof(EntityInstanceRendererTransform));
-	            var matricesSlice = Unity.Collections.LowLevel.Unsafe.NativeSliceUnsafeUtility.ConvertExistingDataToNativeSlice<EntityInstanceRendererTransform>(matricesPtr, sizeof(Matrix4x4), length);
+                UnityEngine.Assertions.Assert.AreEqual(sizeof(Matrix4x4), sizeof(LocalToWorld));
+	            var matricesSlice = Unity.Collections.LowLevel.Unsafe.NativeSliceUnsafeUtility.ConvertExistingDataToNativeSlice<LocalToWorld>(matricesPtr, sizeof(Matrix4x4), length);
 	            #if ENABLE_UNITY_COLLECTIONS_CHECKS
 	            Unity.Collections.LowLevel.Unsafe.NativeSliceUnsafeUtility.SetAtomicSafetyHandle(ref matricesSlice, AtomicSafetyHandle.GetTempUnsafePtrSliceHandle());
 	            #endif
@@ -56,7 +56,7 @@ namespace ECS_SpaceShooterDemo
 	            }
 	        }
 
-	        m_InstanceRendererGroup = GetComponentGroup(typeof(EntityInstanceRenderer), typeof(EntityInstanceRendererTransform));
+	        m_InstanceRendererGroup = GetComponentGroup(typeof(EntityInstanceRenderer), typeof(LocalToWorld));
 
 	        base.OnCreateManager();
 	    }
@@ -76,14 +76,14 @@ namespace ECS_SpaceShooterDemo
 	        public Matrix4x4* matricesPtr;
 
 	        [ReadOnly]
-	        public ComponentDataArray<EntityInstanceRendererTransform> transforms;
+	        public ComponentDataArray<LocalToWorld> transforms;
 	        public int beginIndex;
 	        public int length;
 
 	        public void Execute()
 	        {
-	            UnityEngine.Assertions.Assert.AreEqual(sizeof(Matrix4x4), sizeof(EntityInstanceRendererTransform));
-	            var matricesSlice = Unity.Collections.LowLevel.Unsafe.NativeSliceUnsafeUtility.ConvertExistingDataToNativeSlice<EntityInstanceRendererTransform>(matricesPtr, sizeof(Matrix4x4), length);
+	            UnityEngine.Assertions.Assert.AreEqual(sizeof(Matrix4x4), sizeof(LocalToWorld));
+	            var matricesSlice = Unity.Collections.LowLevel.Unsafe.NativeSliceUnsafeUtility.ConvertExistingDataToNativeSlice<LocalToWorld>(matricesPtr, sizeof(Matrix4x4), length);
 #if ENABLE_UNITY_COLLECTIONS_CHECKS
 	            Unity.Collections.LowLevel.Unsafe.NativeSliceUnsafeUtility.SetAtomicSafetyHandle(ref matricesSlice, AtomicSafetyHandle.GetTempUnsafePtrSliceHandle());
 #endif
@@ -92,7 +92,7 @@ namespace ECS_SpaceShooterDemo
 	    }
 
 	    void DrawPreviousJobs(JobHandle previousMatrixJobHandle, int previousFilledMatrixJobIndex, int previousJobCount, int previousJobBeginIndex,
-	                            ComponentDataArray<EntityInstanceRendererTransform> transforms, EntityInstanceRenderer renderer)
+	                            ComponentDataArray<LocalToWorld> transforms, EntityInstanceRenderer renderer)
 	    {
 	        UnityEngine.Profiling.Profiler.BeginSample("Previous DrawMeshInstanced");
 
@@ -136,7 +136,7 @@ namespace ECS_SpaceShooterDemo
 
                 m_InstanceRendererGroup.SetFilter(renderer);
 
-                ComponentDataArray<EntityInstanceRendererTransform> transforms = m_InstanceRendererGroup.GetComponentDataArray<EntityInstanceRendererTransform>();
+                ComponentDataArray<LocalToWorld> transforms = m_InstanceRendererGroup.GetComponentDataArray<LocalToWorld>();
 
 
 

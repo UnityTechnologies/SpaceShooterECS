@@ -23,7 +23,6 @@ namespace ECS_SpaceShooterDemo
             public ArchetypeChunkComponentType<Position> positionRW;
             public ArchetypeChunkComponentType<Rotation> rotationRW;
             [ReadOnly] public ArchetypeChunkComponentType<AsteroidMoveData> asteroidMoveDataRO;
-            public ArchetypeChunkComponentType<EntityInstanceRendererTransform> renderTransformRW;
             public ArchetypeChunkComponentType<EntityBoundCenterData> boundCenterDataRW;
             public ArchetypeChunkComponentType<EntityBoundMinMaxData> boundMinMaxDataRW;
             [ReadOnly] public ArchetypeChunkComponentType<EntityBoundOffsetData> boundOffsetDataRO;
@@ -39,7 +38,6 @@ namespace ECS_SpaceShooterDemo
                 NativeArray<Position> positionDataArray = chunk.GetNativeArray(positionRW);
                 NativeArray<Rotation> rotationDataArray = chunk.GetNativeArray(rotationRW);
                 NativeArray<AsteroidMoveData> asteroidMoveDataArray = chunk.GetNativeArray(asteroidMoveDataRO);
-                NativeArray<EntityInstanceRendererTransform> renderTransformArray = chunk.GetNativeArray(renderTransformRW);
                 NativeArray<EntityBoundCenterData> boundCenterDataArray = chunk.GetNativeArray(boundCenterDataRW);
                 NativeArray<EntityBoundMinMaxData> boundMinMaxDataArray = chunk.GetNativeArray(boundMinMaxDataRW);
                 NativeArray<EntityBoundOffsetData> boundOffsetDataArray = chunk.GetNativeArray(boundOffsetDataRO);
@@ -60,12 +58,6 @@ namespace ECS_SpaceShooterDemo
                     positionDataArray[dataIndex] = position;
                     rotationDataArray[dataIndex] = rotation;
 
-    
-                    EntityInstanceRendererTransform entityInstanceRenderData = renderTransformArray[dataIndex];
-        
-                    entityInstanceRenderData.matrix = new float4x4(rotation.Value, position.Value);
-                    
-                    renderTransformArray[dataIndex] = entityInstanceRenderData;
     
                     EntityBoundCenterData entityBoundCenterData = boundCenterDataArray[dataIndex];
                     EntityBoundMinMaxData entityBoundMinMaxData = boundMinMaxDataArray[dataIndex];
@@ -95,7 +87,6 @@ namespace ECS_SpaceShooterDemo
                     typeof(Position),
                     typeof(Rotation),
                     typeof(AsteroidMoveData), 
-                    typeof(EntityInstanceRendererTransform), 
                     typeof(EntityBoundCenterData),
                     typeof(EntityBoundMinMaxData),
                     typeof(EntityBoundOffsetData),
@@ -109,7 +100,6 @@ namespace ECS_SpaceShooterDemo
             ArchetypeChunkComponentType<Position> positionRW = GetArchetypeChunkComponentType<Position>(false);
             ArchetypeChunkComponentType<Rotation> rotationRW = GetArchetypeChunkComponentType<Rotation>(false);
             ArchetypeChunkComponentType<AsteroidMoveData> asteroidMoveDataRO = GetArchetypeChunkComponentType<AsteroidMoveData>(true);
-            ArchetypeChunkComponentType<EntityInstanceRendererTransform> renderTransformRW = GetArchetypeChunkComponentType<EntityInstanceRendererTransform>(false);
             ArchetypeChunkComponentType<EntityBoundCenterData> boundCenterDataRW = GetArchetypeChunkComponentType<EntityBoundCenterData>(false);
             ArchetypeChunkComponentType<EntityBoundMinMaxData> boundMinMaxDataRW = GetArchetypeChunkComponentType<EntityBoundMinMaxData>(false);
             ArchetypeChunkComponentType<EntityBoundOffsetData> boundOffsetDataRO = GetArchetypeChunkComponentType<EntityBoundOffsetData>(true);
@@ -140,7 +130,6 @@ namespace ECS_SpaceShooterDemo
                 positionRW = positionRW,
                 rotationRW = rotationRW,
                 asteroidMoveDataRO = asteroidMoveDataRO,
-                renderTransformRW = renderTransformRW,
                 boundCenterDataRW = boundCenterDataRW,
                 boundMinMaxDataRW = boundMinMaxDataRW,
                 boundOffsetDataRO = boundOffsetDataRO,

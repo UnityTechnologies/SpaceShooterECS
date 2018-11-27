@@ -25,16 +25,6 @@ namespace ECS_SpaceShooterDemo
         [ReadOnly]
         ComponentDataFromEntity<EntityBoundMinMaxData> m_EntityBoundMinMaxDataFromEntity;
 
-        //This is here so the OnUpdate function get a dependency on jobs touching this type of data
-        //systems running after this one require those jobs to be done, and sometime our collision system jobs end up delaying those jobs.
-        struct ForceDependency
-        {
-            [ReadOnly]
-            public ComponentDataArray<EntityInstanceRendererTransform> entityInstanceRenderTransformArray;
-        }
-
-        [Inject]
-        ForceDependency m_ForceDependency;
 
         float3 collisionHashMapBigCellSizes = new float3(4.0f, 4.0f, 4.0f);
         float3 collisionHashMapSmallCellSizes = new float3(2.0f, 1.0f, 2.0f);

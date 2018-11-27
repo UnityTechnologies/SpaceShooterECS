@@ -5,6 +5,7 @@ using UnityEngine;
 using Unity.Entities;
 using Unity.Mathematics;
 using Unity.Collections;
+using Unity.Transforms;
 using UnityEngine.ECS.Rendering;
 
 namespace ECS_SpaceShooterDemo
@@ -28,7 +29,7 @@ namespace ECS_SpaceShooterDemo
         struct InfoForLogicAfterDestroy
         {
             public EntityTypeData entityTypeData;
-            public EntityInstanceRendererTransform renderTransform;
+            public Position entityPosition;
         }
 
         //Function do some logic after entities have been destroyed (in this case spawn particles)
@@ -39,7 +40,7 @@ namespace ECS_SpaceShooterDemo
             for (int i = 0; i < infoLogicTmpDataArray.Length; i++)
             {
                 InfoForLogicAfterDestroy infoLogic = infoLogicTmpDataArray[i];
-                float4 infoLogicPosition = infoLogic.renderTransform.matrix.c3;
+                float3 infoLogicPosition = infoLogic.entityPosition.Value;
 
                 switch(infoLogic.entityTypeData.entityType)
                 {
@@ -50,7 +51,7 @@ namespace ECS_SpaceShooterDemo
                                 bool priorityParticle = infoLogicPosition.y > priorityVFXMaxDistance ? true : false;
 
                                 MonoBehaviourECSBridge.Instance.asteroidExplosion.SpawnParticle(priorityParticle,
-                                                                                                infoLogicPosition.xyz,
+                                                                                                infoLogicPosition,
                                                                                                 Quaternion.identity);
 
                             }
@@ -63,7 +64,7 @@ namespace ECS_SpaceShooterDemo
                                 bool priorityParticle = infoLogicPosition.y > priorityVFXMaxDistance ? true : false;
 
                                 MonoBehaviourECSBridge.Instance.enemyExplosion.SpawnParticle(priorityParticle,
-                                                                                                infoLogicPosition.xyz,
+                                                                                                infoLogicPosition,
                                                                                                 Quaternion.identity);
                             }
                         }
@@ -75,7 +76,7 @@ namespace ECS_SpaceShooterDemo
                                 bool priorityParticle = infoLogicPosition.y > priorityVFXMaxDistance ? true : false;
 
                                 MonoBehaviourECSBridge.Instance.allyExplosion.SpawnParticle(priorityParticle,
-                                                                                            infoLogicPosition.xyz,
+                                                                                            infoLogicPosition,
                                                                                             Quaternion.identity);
                             }
                         }
@@ -85,7 +86,7 @@ namespace ECS_SpaceShooterDemo
                             if (MonoBehaviourECSBridge.Instance.playerExplosion != null)
                             {
                                 MonoBehaviourECSBridge.Instance.playerExplosion.SpawnParticle(true,
-                                                                                                infoLogicPosition.xyz,
+                                                                                                infoLogicPosition,
                                                                                               Quaternion.identity);
                             }
                         }
@@ -205,11 +206,11 @@ namespace ECS_SpaceShooterDemo
                                 {
                                     //Those type of entity will require some additional logic after destruction,
                                     //create the info needed and add it to the list
-                                    EntityInstanceRendererTransform entityToDestroyRenderTransform = entityTransaction.GetComponentData<EntityInstanceRendererTransform>(entityToDestroy);
+                                    Position entityToDestroyPosition = entityTransaction.GetComponentData<Position>(entityToDestroy);
                                     InfoForLogicAfterDestroy newInfo = new InfoForLogicAfterDestroy
                                     {
                                         entityTypeData = entityToDestroyTypeData,
-                                        renderTransform = entityToDestroyRenderTransform,
+                                        entityPosition = entityToDestroyPosition,
                                     };
                                     infoForLogic.Add(newInfo);
                                 }

@@ -19,7 +19,6 @@ namespace ECS_SpaceShooterDemo
             public ComponentDataArray<PlayerMoveData> playerMoveDataArray;
             public ComponentDataArray<Position> playerPositionDataArray;
             public ComponentDataArray<Rotation> playerRotationDataArray;
-            public ComponentDataArray<EntityInstanceRendererTransform> entityInstanceRenderTransformArray;
             public ComponentDataArray<EntityBoundCenterData> entityBoundCenterDataArray;
             public ComponentDataArray<EntityBoundMinMaxData> entityBoundMinMaxDataArray;
             [ReadOnly]
@@ -40,7 +39,6 @@ namespace ECS_SpaceShooterDemo
             [ReadOnly] public ComponentDataArray<PlayerMoveData> playerMoveDataArray;
             public ComponentDataArray<Position> playerPositionDataArray;
             public ComponentDataArray<Rotation> playerRotationDataArray;
-            public ComponentDataArray<EntityInstanceRendererTransform> entityInstanceRenderTransformArray;
             public ComponentDataArray<EntityBoundCenterData> entityBoundCenterDataArray;
             public ComponentDataArray<EntityBoundMinMaxData> entityBoundMinMaxDataArray;
             [ReadOnly]
@@ -70,13 +68,7 @@ namespace ECS_SpaceShooterDemo
                 playerPositionDataArray[index] = playerPosition;
                 playerRotationDataArray[index] = playerRotation;
                 
-
-                EntityInstanceRendererTransform entityInstanceRenderTransform = entityInstanceRenderTransformArray[index];
-                    
-                entityInstanceRenderTransform.matrix = new float4x4(quaternion.LookRotation(playerMoveData.forwardDirection, shipUp), playerPosition.Value);
-                    
-                entityInstanceRenderTransformArray[index] = entityInstanceRenderTransform;
-                
+               
                 EntityBoundCenterData entityBoundCenterData = entityBoundCenterDataArray[index];
                 EntityBoundMinMaxData entityBoundMinMaxData = entityBoundMinMaxDataArray[index];
 
@@ -99,7 +91,6 @@ namespace ECS_SpaceShooterDemo
                 playerMoveDataArray = playerMoveDataGroup.playerMoveDataArray,
                 playerPositionDataArray = playerMoveDataGroup.playerPositionDataArray,
                 playerRotationDataArray = playerMoveDataGroup.playerRotationDataArray,
-                entityInstanceRenderTransformArray = playerMoveDataGroup.entityInstanceRenderTransformArray,
                 entityBoundCenterDataArray = playerMoveDataGroup.entityBoundCenterDataArray,
                 entityBoundMinMaxDataArray = playerMoveDataGroup.entityBoundMinMaxDataArray,
                 entityBoundOffsetDataArray = playerMoveDataGroup.entityBoundOffsetDataArray,
