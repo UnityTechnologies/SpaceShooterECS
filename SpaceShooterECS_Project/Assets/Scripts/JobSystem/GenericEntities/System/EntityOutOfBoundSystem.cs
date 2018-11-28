@@ -4,13 +4,11 @@ using UnityEngine;
 using Unity.Entities;
 using Unity.Collections;
 using Unity.Mathematics;
+using Unity.Transforms;
 
 namespace ECS_SpaceShooterDemo
 {
-    [UpdateAfter(typeof(AsteroidMoveSystem))]
     [UpdateAfter(typeof(GameMoveSystem))]
-    [UpdateAfter(typeof(AISpawnBoltSystem))]
-    [UpdateAfter(typeof(PlayerSpawnBoltSystem))]
     public class EntityOutOfBoundSystem : GameControllerJobComponentSystem
     {
         [Inject]

@@ -10,7 +10,6 @@ using Unity.Transforms;
 namespace ECS_SpaceShooterDemo
 {
     [UpdateAfter(typeof(PlayerMoveSystem))]
-    [UpdateBefore(typeof(ECS_SpaceShooterDemo.EntityOutOfBoundSystem))]
     public class PlayerSpawnBoltSystem : GameControllerJobComponentSystem
     {
         [Inject]

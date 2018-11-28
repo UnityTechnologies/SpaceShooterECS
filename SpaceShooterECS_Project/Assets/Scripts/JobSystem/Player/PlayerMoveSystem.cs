@@ -9,7 +9,6 @@ using Unity.Transforms;
 
 namespace ECS_SpaceShooterDemo
 {
-    [UpdateAfter(typeof(PlayerInputSystem))]
     [UpdateBefore(typeof(EntityOutOfBoundSystem))]
     public class PlayerMoveSystem : GameControllerJobComponentSystem
     {

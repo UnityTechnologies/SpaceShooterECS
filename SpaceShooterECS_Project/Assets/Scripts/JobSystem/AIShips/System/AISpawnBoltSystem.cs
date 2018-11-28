@@ -11,7 +11,6 @@ using Unity.Transforms;
 namespace ECS_SpaceShooterDemo
 {
     [UpdateAfter(typeof(GameMoveSystem))]
-    [UpdateBefore(typeof(ECS_SpaceShooterDemo.EntityOutOfBoundSystem))]
     public class AISpawnBoltSystem : GameControllerJobComponentSystem
     {
         [Inject]

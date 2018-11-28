@@ -7,6 +7,7 @@ using Unity.Collections;
 
 namespace ECS_SpaceShooterDemo
 {
+    [UpdateBefore(typeof(PlayerMoveSystem))]
     public class PlayerInputSystem : GameControllerComponentSystem
     {
         struct PlayerInputDataGroup
