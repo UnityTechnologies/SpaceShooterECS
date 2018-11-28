@@ -5,7 +5,7 @@ using Unity.Entities;
 using Unity.Collections;
 using Unity.Mathematics;
 using System.Collections.Generic;
-using UnityEngine.ECS.Rendering;
+
 
 namespace ECS_SpaceShooterDemo
 {
@@ -189,7 +189,7 @@ namespace ECS_SpaceShooterDemo
         }
 
 
-        [BurstCompileAttribute(Accuracy.Med, Support.Relaxed)]
+        [BurstCompile]
         struct FillCellJob : IJobParallelFor
         {
             [ReadOnly]
@@ -218,7 +218,7 @@ namespace ECS_SpaceShooterDemo
             }
         }
 
-        [BurstCompileAttribute(Accuracy.Med, Support.Relaxed)]
+        [BurstCompile]
         struct CollisionDetectJob : IJobParallelFor
         {
             [ReadOnly]
@@ -298,7 +298,7 @@ namespace ECS_SpaceShooterDemo
 
 
         //TODO: When using burst this job never complete when resizing the hash map 
-        //[BurstCompileAttribute(Accuracy.Med, Support.Relaxed)] 
+        [BurstCompile]
         struct AllocateCellsJob : IJob
         {
             public NativeMultiHashMap<int, HashMapData> outputCells;
@@ -315,7 +315,7 @@ namespace ECS_SpaceShooterDemo
         }
 
 
-        [BurstCompileAttribute(Accuracy.Med, Support.Relaxed)]
+        [BurstCompile]
         struct ClearCellsJob : IJob
         {
             [DeallocateOnJobCompletion]

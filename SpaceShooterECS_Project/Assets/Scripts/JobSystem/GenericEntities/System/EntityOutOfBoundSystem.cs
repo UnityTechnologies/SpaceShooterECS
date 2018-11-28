@@ -31,7 +31,7 @@ namespace ECS_SpaceShooterDemo
 
         //This job will add to a queue any entity outside of the view frustum (+ a safe zone)
         //The calculation assume a camera pointing down (no angle)
-        [BurstCompileAttribute(Accuracy.Med, Support.Relaxed)]
+        [BurstCompile]
         struct EntityOutOfBoundJob : IJobParallelFor
         {
             [ReadOnly]

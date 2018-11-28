@@ -6,7 +6,7 @@ using Unity.Entities;
 using Unity.Mathematics;
 using Unity.Collections;
 using Unity.Transforms;
-using UnityEngine.ECS.Rendering;
+
 
 namespace ECS_SpaceShooterDemo
 {
@@ -143,7 +143,7 @@ namespace ECS_SpaceShooterDemo
         }
 
         //currently ExclusiveEntityTransaction is not supported by Burst
-        //[BurstCompileAttribute(Accuracy.Med, Support.Relaxed)]
+        //[BurstCompile]
         struct DestroyEntityJob : IJob
         {
             //We use an ExclusiveEntityTransaction to have access to the entity manager
@@ -167,7 +167,7 @@ namespace ECS_SpaceShooterDemo
         }
 
         //currently ExclusiveEntityTransaction is not supported by Burst
-        //[BurstCompileAttribute(Accuracy.Med, Support.Relaxed)]
+        //[BurstCompile]
         struct DestroyEntityWithLogicJob : IJob
         {
             //We use an ExclusiveEntityTransaction to have access to the entity manager

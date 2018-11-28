@@ -6,7 +6,7 @@ using Unity.Entities;
 using Unity.Mathematics;
 using Unity.Collections;
 using Unity.Transforms;
-using UnityEngine.ECS.Rendering;
+
 
 namespace ECS_SpaceShooterDemo
 {
@@ -22,7 +22,7 @@ namespace ECS_SpaceShooterDemo
         List<EntityTypeData> uniqueEntityTypes = new List<EntityTypeData>(10);
         
         
-        [BurstCompileAttribute(Accuracy.Med, Support.Relaxed)]
+        [BurstCompile]
         struct AISpawnBoltJob : IJobParallelFor
         {
             [ReadOnly]

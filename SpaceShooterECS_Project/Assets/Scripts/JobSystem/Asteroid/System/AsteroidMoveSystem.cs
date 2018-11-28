@@ -5,7 +5,7 @@ using Unity.Entities;
 using Unity.Mathematics;
 using Unity.Collections;
 using Unity.Transforms;
-using UnityEngine.ECS.Rendering;
+
 
 namespace ECS_SpaceShooterDemo
 {

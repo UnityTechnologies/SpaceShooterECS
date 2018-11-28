@@ -5,7 +5,7 @@ using Unity.Entities;
 using Unity.Mathematics;
 using Unity.Collections;
 using Unity.Transforms;
-using UnityEngine.ECS.Rendering;
+
 
 namespace ECS_SpaceShooterDemo
 {
@@ -31,8 +31,7 @@ namespace ECS_SpaceShooterDemo
         [Inject]
         PlayerMoveDataGroup playerMoveDataGroup;
 
-        //Feedback: The clamp will stop working in burst after a few seconds of usage
-        //[BurstCompileAttribute(Accuracy.Med, Support.Relaxed)]
+        [BurstCompile]
         struct PlayerMoveJob : IJobParallelFor
         {
             [ReadOnly] public ComponentDataArray<PlayerInputData> playerInputDataArray;
