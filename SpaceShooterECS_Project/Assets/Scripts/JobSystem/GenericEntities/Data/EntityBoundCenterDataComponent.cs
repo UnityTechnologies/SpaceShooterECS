@@ -4,6 +4,7 @@ using UnityEngine;
 using Unity.Entities;
 using Unity.Mathematics;
 using Unity.Collections;
+using Unity.Transforms;
 
 
 namespace ECS_SpaceShooterDemo
@@ -26,18 +27,24 @@ namespace ECS_SpaceShooterDemo
         {
             if (!UnityEditor.EditorApplication.isPlaying)
             {
-                float3 offset = new float3(0.0f, 0.0f, 0.0f);
-                EntityBoundOffsetDataComponent offsetComponent = GetComponent<EntityBoundOffsetDataComponent>();
-                if (offsetComponent)
+                PositionComponent positionComponent = GetComponent<PositionComponent>();
+                if (positionComponent)
                 {
-                    EntityBoundOffsetData offsetData = offsetComponent.Value;
-                    offset = offsetData.offset;
-                }
+                    float3 offset = new float3(0.0f, 0.0f, 0.0f);
+                    EntityBoundOffsetDataComponent offsetComponent = GetComponent<EntityBoundOffsetDataComponent>();
+                    if (offsetComponent)
+                    {
+                        EntityBoundOffsetData offsetData = offsetComponent.Value;
+                        offset = offsetData.offset;
+                    }
 
-                EntityBoundCenterData centerData = Value;
-                centerData.centerPosition = transform.position;
-                centerData.centerPosition += offset;
-                Value = centerData;
+                    EntityBoundCenterData centerData = Value;
+                    centerData.centerPosition = positionComponent.Value.Value;
+                    centerData.centerPosition += offset;
+                    Value = centerData;
+                }               
+                
+
             }
         }
 #endif

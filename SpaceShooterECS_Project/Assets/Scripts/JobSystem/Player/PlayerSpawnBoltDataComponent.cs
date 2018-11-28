@@ -4,6 +4,7 @@ using UnityEngine;
 using Unity.Entities;
 using Unity.Mathematics;
 using Unity.Collections;
+using Unity.Transforms;
 
 namespace ECS_SpaceShooterDemo
 {
@@ -26,22 +27,32 @@ namespace ECS_SpaceShooterDemo
         {
             if (!UnityEditor.EditorApplication.isPlaying)
             {
-                PlayerSpawnBoltData spawnData = Value;
-                spawnData.spawnPosition = transform.position;
-                Value = spawnData;
+                PositionComponent positionComponent = GetComponent<PositionComponent>();
+                if (positionComponent)
+                {
+                    PlayerSpawnBoltData spawnData = Value;
+                    spawnData.spawnPosition = positionComponent.Value.Value;
+                    Value = spawnData;
+                }
             }
         }
 #endif
 
         void OnDrawGizmosSelected()
-        {
+        {          
             PlayerSpawnBoltData spawnData = Value;
             Gizmos.color = Color.blue;
             Vector3 position = new Vector3(spawnData.spawnPosition.x,
                                         spawnData.spawnPosition.y,
                                         spawnData.spawnPosition.z);
-            position += transform.forward * spawnData.offset;
-
+            
+            RotationComponent rotationComponent = GetComponent<RotationComponent>();
+            if (rotationComponent)
+            {
+                Vector3 forward = math.forward(rotationComponent.Value.Value);
+                position += forward * spawnData.offset;
+            }
+            
             Gizmos.DrawSphere(position, 0.1f);
         }
 
