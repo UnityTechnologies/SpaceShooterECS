@@ -13,10 +13,8 @@ namespace ECS_SpaceShooterDemo
     [UpdateAfter(typeof(GameMoveSystem))]
     public class AISpawnBoltSystem : GameControllerJobComponentSystem
     {
-        [Inject]
-        BoltSpawnerEntityDataGroup boltSpawnerEntityDataGroup;
-
-        ComponentGroup aiSpawnBoltDataGroup = null;
+        ComponentGroup boltSpawnerEntityDataGroup;
+        ComponentGroup aiSpawnBoltDataGroup;
 
         List<EntityTypeData> uniqueEntityTypes = new List<EntityTypeData>(10);
         
@@ -60,17 +58,25 @@ namespace ECS_SpaceShooterDemo
         protected override void OnCreateManager()
         {
             base.OnCreateManager();
-            
+
+            boltSpawnerEntityDataGroup = GetComponentGroup(typeof(BoltSpawnerEntityData));
             aiSpawnBoltDataGroup = GetComponentGroup(typeof(Position), typeof(Rotation), typeof(AISpawnBoltData), typeof(EntityTypeData));
             
         }
 
         protected override JobHandle OnUpdate(JobHandle inputDeps)
         {
+            EntityArray boltSpawnerEntityDataArray = boltSpawnerEntityDataGroup.GetEntityArray();
+            if (boltSpawnerEntityDataArray.Length == 0)
+            {
+                return inputDeps;
+            }
+                
+            BoltSpawnerEntityData boltSpawnerEntityData = GetComponentDataFromEntity<BoltSpawnerEntityData>()[boltSpawnerEntityDataArray[0]];
+            
             uniqueEntityTypes.Clear();
             EntityManager.GetAllUniqueSharedComponentData(uniqueEntityTypes);
             
-
             JobHandle spawnJobHandle = new JobHandle();
             JobHandle spawnJobDependency = inputDeps;
             for (int i = 0; i != uniqueEntityTypes.Count; i++)
@@ -81,12 +87,10 @@ namespace ECS_SpaceShooterDemo
                 {
                     aiSpawnBoltDataGroup.SetFilter(uniqueEntityTypes[i]);
                     
-                    NativeQueue<Entity>.Concurrent spawnBoltEntityQueueToUse = boltSpawnerEntityDataGroup
-                        .boltSpawnerEntityData[0].enemyBoltSpawnQueueConcurrent;
+                    NativeQueue<Entity>.Concurrent spawnBoltEntityQueueToUse = boltSpawnerEntityData.enemyBoltSpawnQueueConcurrent;
                     if (entityTypeData.entityType == EntityTypeData.EntityType.AllyShip)
                     {
-                        spawnBoltEntityQueueToUse = boltSpawnerEntityDataGroup.boltSpawnerEntityData[0]
-                            .allyBoltSpawnQueueConcurrent;
+                        spawnBoltEntityQueueToUse = boltSpawnerEntityData.allyBoltSpawnQueueConcurrent;
                     }
 
 

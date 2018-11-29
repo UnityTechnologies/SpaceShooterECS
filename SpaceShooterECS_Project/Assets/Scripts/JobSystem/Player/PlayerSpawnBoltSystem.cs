@@ -12,8 +12,7 @@ namespace ECS_SpaceShooterDemo
     [UpdateAfter(typeof(PlayerMoveSystem))]
     public class PlayerSpawnBoltSystem : GameControllerJobComponentSystem
     {
-        [Inject]
-        BoltSpawnerEntityDataGroup boltSpawnerEntityDataGroup;
+        ComponentGroup boltSpawnerEntityDataGroup;
 
 
         struct PlayerMoveSpawnBoltDataGroup
@@ -67,8 +66,23 @@ namespace ECS_SpaceShooterDemo
             }
         }
 
+        protected override void OnCreateManager()
+        {
+            base.OnCreateManager();
+
+            boltSpawnerEntityDataGroup = GetComponentGroup(typeof(BoltSpawnerEntityData));        
+        }        
+        
         protected override JobHandle OnUpdate(JobHandle inputDeps)
         {
+            EntityArray boltSpawnerEntityDataArray = boltSpawnerEntityDataGroup.GetEntityArray();
+            if (boltSpawnerEntityDataArray.Length == 0)
+            {
+                return inputDeps;
+            }
+                
+            BoltSpawnerEntityData boltSpawnerEntityData = GetComponentDataFromEntity<BoltSpawnerEntityData>()[boltSpawnerEntityDataArray[0]];
+            
             PlayerSpawnBoltJob playerSpawnBoltJob = new PlayerSpawnBoltJob
             {
                 entityArray = playerMoveSpawnBoltDataGroup.entityArray,
@@ -76,7 +90,7 @@ namespace ECS_SpaceShooterDemo
                 playerMoveDataArray = playerMoveSpawnBoltDataGroup.playerMoveDataArray,
                 playerPositionArray = playerMoveSpawnBoltDataGroup.playerPositionArray,
                 playerSpawnBoltDataArray = playerMoveSpawnBoltDataGroup.playerSpawnBoltDataArray,
-                spawnBoltEntityQueue = boltSpawnerEntityDataGroup.boltSpawnerEntityData[0].playerBoltSpawnQueueConcurrent,
+                spawnBoltEntityQueue = boltSpawnerEntityData.playerBoltSpawnQueueConcurrent,
                 currentTime = Time.time,
             };
 

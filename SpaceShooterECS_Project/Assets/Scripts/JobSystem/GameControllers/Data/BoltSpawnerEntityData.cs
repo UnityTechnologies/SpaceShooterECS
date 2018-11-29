@@ -15,11 +15,4 @@ namespace ECS_SpaceShooterDemo
         public NativeQueue<Entity>.Concurrent allyBoltSpawnQueueConcurrent;
         public NativeQueue<Entity>.Concurrent playerBoltSpawnQueueConcurrent;
     }
-
-    struct BoltSpawnerEntityDataGroup
-    {
-        public ComponentDataArray<BoltSpawnerEntityData> boltSpawnerEntityData;
-        public readonly int Length;
-    }
-
 }

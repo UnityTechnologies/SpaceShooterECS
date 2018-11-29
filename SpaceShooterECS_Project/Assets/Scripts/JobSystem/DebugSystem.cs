@@ -16,9 +16,7 @@ namespace ECS_SpaceShooterDemo
     {
         ComponentGroup uiEntityDataGroup;        
         ComponentGroup destroyEntityDataGroup;
-        
-        [Inject]
-        BoltSpawnerEntityDataGroup boltSpawnerEntityDataGroup;
+        ComponentGroup boltSpawnerEntityDataGroup;
 
         protected override void OnCreateManager()
         {
@@ -26,6 +24,7 @@ namespace ECS_SpaceShooterDemo
 
             uiEntityDataGroup = GetComponentGroup(typeof(UIData));
             destroyEntityDataGroup = GetComponentGroup(typeof(DestroyEntityData));
+            boltSpawnerEntityDataGroup  = GetComponentGroup(typeof(BoltSpawnerEntityData));
         }
         
         
@@ -63,6 +62,7 @@ namespace ECS_SpaceShooterDemo
         {
             EntityArray uiEntityDataArray = uiEntityDataGroup.GetEntityArray();
             EntityArray destroyEntityArray = destroyEntityDataGroup.GetEntityArray();
+            EntityArray boltSpawnerEntityDataArray = boltSpawnerEntityDataGroup.GetEntityArray();
             
             if(uiEntityDataArray.Length != 1)
             {
@@ -74,7 +74,7 @@ namespace ECS_SpaceShooterDemo
                 Debug.LogError("Only one entity with destroyEntityData is supported");
             }
 
-            if(boltSpawnerEntityDataGroup.Length != 1)
+            if(boltSpawnerEntityDataArray.Length != 1)
             {
                 Debug.LogError("Only one entity with boltSpawnerEntityData is supported");
             }

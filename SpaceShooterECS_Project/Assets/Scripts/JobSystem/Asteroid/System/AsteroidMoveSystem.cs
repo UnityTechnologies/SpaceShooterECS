@@ -107,7 +107,7 @@ namespace ECS_SpaceShooterDemo
 
 
             //CreateArchetypeChunkArray runs inside a job, we can use a job handle to make dependency on that job
-            //A NativeArray<ArchetypeChunk> is allocated with teh correct size on the main thread and that's what is returned, we are responsible for de-allocating it (In this case using [DeallocateOnJobCompletion] in the move job)
+            //A NativeArray<ArchetypeChunk> is allocated with the correct size on the main thread and that's what is returned, we are responsible for de-allocating it (In this case using [DeallocateOnJobCompletion] in the move job)
             //The job scheduled by CreateArchetypeChunkArray fill that array with correct chunk information
             JobHandle createChunckArrayJobHandle; 
             NativeArray<ArchetypeChunk> asteroidMoveDataChunk = asteroidMoveDataComponentGroup.CreateArchetypeChunkArray(Allocator.TempJob, out createChunckArrayJobHandle);

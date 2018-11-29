@@ -21,11 +21,6 @@ namespace ECS_SpaceShooterDemo
 
         ComponentGroup destroyEntityDataGroup;
 
-        [Inject]
-        [ReadOnly]
-        ComponentDataFromEntity<EntityBoundMinMaxData> m_EntityBoundMinMaxDataFromEntity;
-
-
         float3 collisionHashMapBigCellSizes = new float3(4.0f, 4.0f, 4.0f);
         float3 collisionHashMapSmallCellSizes = new float3(2.0f, 1.0f, 2.0f);
 
