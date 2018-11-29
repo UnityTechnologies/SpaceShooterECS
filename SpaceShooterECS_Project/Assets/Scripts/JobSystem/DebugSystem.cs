@@ -1,4 +1,5 @@
-﻿using System.Collections;
+﻿using System;
+using System.Collections;
 using Unity.Burst;
 using Unity.Jobs;
 using UnityEngine;
@@ -13,16 +14,23 @@ namespace ECS_SpaceShooterDemo
     [UpdateAfter(typeof(DestroyEntitySystem))]
     public class DebugSystem : GameControllerComponentSystem
     {
-        [Inject]
-        UIEntityDataGroup uiEntityDataGroup;
-        [Inject]
-        DestroyEntityDataGroup destroyEntityDataGroup;
+        ComponentGroup uiEntityDataGroup;        
+        ComponentGroup destroyEntityDataGroup;
+        
         [Inject]
         BoltSpawnerEntityDataGroup boltSpawnerEntityDataGroup;
 
-
-        protected override void OnUpdate()
+        protected override void OnCreateManager()
         {
+            base.OnCreateManager();
+
+            uiEntityDataGroup = GetComponentGroup(typeof(UIData));
+            destroyEntityDataGroup = GetComponentGroup(typeof(DestroyEntityData));
+        }
+        
+        
+        protected override void OnUpdate()
+        {            
             TestSingletonCount();
 
             UpdateDebugJobBatchCount();
@@ -53,12 +61,15 @@ namespace ECS_SpaceShooterDemo
 
         void TestSingletonCount()
         {
-            if(uiEntityDataGroup.Length != 1)
+            EntityArray uiEntityDataArray = uiEntityDataGroup.GetEntityArray();
+            EntityArray destroyEntityArray = destroyEntityDataGroup.GetEntityArray();
+            
+            if(uiEntityDataArray.Length != 1)
             {
                 Debug.LogError("Only one entity with uiEntityData is supported");
             }
 
-            if(destroyEntityDataGroup.Length != 1)
+            if(destroyEntityArray.Length != 1)
             {
                 Debug.LogError("Only one entity with destroyEntityData is supported");
             }

@@ -14,10 +14,4 @@ namespace ECS_SpaceShooterDemo
         public NativeQueue<Entity>.Concurrent entityOutOfBoundQueueConcurrent;
         public NativeQueue<Entity>.Concurrent entityCollisionQueueConcurrent;
     }
-
-    struct DestroyEntityDataGroup
-    {
-        public ComponentDataArray<DestroyEntityData> destroyEntityData;
-        public readonly int Length;
-    }
 }

@@ -15,8 +15,7 @@ namespace ECS_SpaceShooterDemo
     [UpdateBefore(typeof(UnityEngine.Experimental.PlayerLoop.PreUpdate))]
     public class DestroyEntitySystem : GameControllerComponentSystem
     {
-        [Inject]
-        UIEntityDataGroup uiEntityDataGroup;
+        ComponentGroup uiEntityDataGroup;
 
         //queues that will be filled by other systems to tell this system what entities to delete
         public NativeQueue<Entity> entityOutOfBoundQueue;
@@ -24,7 +23,8 @@ namespace ECS_SpaceShooterDemo
 
         //entity used by other systems to find the previous queues
         private Entity dataEntity;
-
+        private bool dataEntityCreated = false;
+        
         //struct containing information needed to run some logic after an entity is destroyed
         struct InfoForLogicAfterDestroy
         {
@@ -117,10 +117,12 @@ namespace ECS_SpaceShooterDemo
         {
             base.OnCreateManager();
 
+            uiEntityDataGroup = GetComponentGroup(typeof(UIData));
+            
             //Allocate our queues
             entityOutOfBoundQueue = new NativeQueue<Entity>(Allocator.Persistent);
             entityCollisionQueue = new NativeQueue<Entity>(Allocator.Persistent);
-
+          
             //Create the entity that will contain our queues
             dataEntity = EntityManager.CreateEntity();
 
@@ -130,12 +132,16 @@ namespace ECS_SpaceShooterDemo
             data.entityCollisionQueueConcurrent = entityCollisionQueue.ToConcurrent();
 
             //Add that struct to the entity
-            EntityManager.AddComponentData(dataEntity, data);
+            EntityManager.AddComponentData(dataEntity, data);            
         }
 
         protected override void OnDestroyManager()
         {
-            EntityManager.DestroyEntity(dataEntity);
+            if (EntityManager.Exists(dataEntity))
+            {
+                EntityManager.DestroyEntity(dataEntity);
+            }
+            
             DisposeOfEntityQueue(entityOutOfBoundQueue);
             DisposeOfEntityQueue(entityCollisionQueue);
 
@@ -235,12 +241,14 @@ namespace ECS_SpaceShooterDemo
         protected override void OnUpdate()
         {
             EntityManager.CompleteAllJobs();
-
+          
             //We need to call this after EntityManager.CompleteAllJobs so that our uiEntityDataGroup is updated
             UpdateInjectedComponentGroups();
 
             //Copy our current UI data in a tmp array
-            UIData testData = uiEntityDataGroup.uiEntityData[0];
+            Entity uiEntity = uiEntityDataGroup.GetEntityArray()[0];
+            UIData testData = GetComponentDataFromEntity<UIData>()[uiEntity];
+
             NativeArray<UIData> uiTmpDataArray = new NativeArray<UIData>(1, Allocator.TempJob);
             uiTmpDataArray[0] = testData;
 
@@ -297,8 +305,10 @@ namespace ECS_SpaceShooterDemo
             UpdateInjectedComponentGroups();
 
             //Copy back the UI data with the update score 
-            testData = uiTmpDataArray[0];
-            uiEntityDataGroup.uiEntityData[0] = testData;
+            testData = uiTmpDataArray[0];     
+            EntityManager.SetComponentData(uiEntity, testData);          
+            
+
 
             //dispose of our tmp array/list
             uiTmpDataArray.Dispose();

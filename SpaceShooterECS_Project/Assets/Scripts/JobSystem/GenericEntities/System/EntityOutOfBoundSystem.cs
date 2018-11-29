@@ -1,4 +1,5 @@
-﻿using Unity.Burst;
+﻿using System;
+using Unity.Burst;
 using Unity.Jobs;
 using UnityEngine;
 using Unity.Entities;
@@ -11,43 +12,20 @@ namespace ECS_SpaceShooterDemo
     [UpdateAfter(typeof(GameMoveSystem))]
     public class EntityOutOfBoundSystem : GameControllerJobComponentSystem
     {
-        [Inject]
-        DestroyEntityDataGroup destroyEntityDataGroup;
-
-        //This will get all EntityBoundCenterData from entities (excluding player and prefab entities)
-        struct EntityBoundDataGroup
-        {
-            public EntityArray entityArray;
-            [ReadOnly]
-            public ComponentDataArray<EntityBoundCenterData> entityBoundCenterDataArray;
-
-            public SubtractiveComponent<PlayerMoveData> playerMoveData;  //don't get our players
-            public readonly int Length; //required variable
-        }
-        [Inject]
-        EntityBoundDataGroup entityBoundDataGroup;
-
+        ComponentGroup destroyEntityDataGroup;
+        
         //This job will add to a queue any entity outside of the view frustum (+ a safe zone)
         //The calculation assume a camera pointing down (no angle)
+        [RequireSubtractiveComponent(typeof(PlayerMoveData))] //don't get our players
         [BurstCompile]
-        struct EntityOutOfBoundJob : IJobParallelFor
+        struct EntityOutOfBoundJob : IJobProcessComponentDataWithEntity<EntityBoundCenterData>
         {
-            [ReadOnly]
-            public EntityArray entityArray;
-            [ReadOnly]
-            public ComponentDataArray<EntityBoundCenterData> entityBoundCenterDataArray;
-
             public NativeQueue<Entity>.Concurrent outOfBoundEntityQueue;
-
             public float3 cameraPosition;
-
             public float halfFrustumHeightPreCalculation;
 
-
-            public void Execute(int index)
+            public void Execute(Entity entity, int index, ref EntityBoundCenterData entityBoundCenterData)
             {
-                EntityBoundCenterData entityBoundCenterData = entityBoundCenterDataArray[index];
-
                 float ydeltaFromCamera = math.abs(entityBoundCenterData.centerPosition.y - cameraPosition.y);
                 float halfFrustumHeight = ydeltaFromCamera * halfFrustumHeightPreCalculation;
 
@@ -58,27 +36,44 @@ namespace ECS_SpaceShooterDemo
                 if (entityBoundCenterData.centerPosition.z < cameraPosition.z - halfFrustumHeight
                     || entityBoundCenterData.centerPosition.z > cameraPosition.z + halfFrustumHeight)
                 {
-                    outOfBoundEntityQueue.Enqueue(entityArray[index]);
+                    outOfBoundEntityQueue.Enqueue(entity);
                 }
             }
         }
 
+        protected override void OnCreateManager()
+        {
+            base.OnCreateManager();
+
+            destroyEntityDataGroup = GetComponentGroup(typeof(DestroyEntityData));
+
+        }
 
 
         protected override JobHandle OnUpdate(JobHandle inputDeps)
         {
-            var outOfBoundJob = new EntityOutOfBoundJob
+            JobHandle outputHandle = inputDeps;
+            
+            EntityArray destroyEntityArray = destroyEntityDataGroup.GetEntityArray();
+            
+            if (destroyEntityArray.Length > 0)
             {
-                entityArray = entityBoundDataGroup.entityArray,
-                entityBoundCenterDataArray = entityBoundDataGroup.entityBoundCenterDataArray,
-                outOfBoundEntityQueue = destroyEntityDataGroup.destroyEntityData[0].entityOutOfBoundQueueConcurrent,
-                cameraPosition = MonoBehaviourECSBridge.Instance.gameCamera.transform.position,
-                halfFrustumHeightPreCalculation = Mathf.Tan(Camera.main.fieldOfView * 0.5f * Mathf.Deg2Rad),
-            };
+                Entity destroyEntity = destroyEntityArray[0];
+                ComponentDataFromEntity<DestroyEntityData> destroyEntityDataFromEntity = GetComponentDataFromEntity<DestroyEntityData>();
+                
+                DestroyEntityData destroyEntityData = destroyEntityDataFromEntity[destroyEntity];
+            
+                var outOfBoundJob = new EntityOutOfBoundJob
+                {
+                    outOfBoundEntityQueue = destroyEntityData.entityOutOfBoundQueueConcurrent,
+                    cameraPosition = MonoBehaviourECSBridge.Instance.gameCamera.transform.position,
+                    halfFrustumHeightPreCalculation = Mathf.Tan(Camera.main.fieldOfView * 0.5f * Mathf.Deg2Rad),
+                };
 
-            return outOfBoundJob.Schedule(entityBoundDataGroup.Length,
-                                          MonoBehaviourECSBridge.Instance.GetJobBatchCount(entityBoundDataGroup.Length),
-                                          inputDeps);
+                outputHandle = outOfBoundJob.Schedule(this, inputDeps);
+            }
+
+            return outputHandle;
         }
 
     }

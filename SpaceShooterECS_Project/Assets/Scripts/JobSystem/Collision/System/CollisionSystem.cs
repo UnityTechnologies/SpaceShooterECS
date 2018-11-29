@@ -1,4 +1,5 @@
-﻿using Unity.Burst;
+﻿using System;
+using Unity.Burst;
 using Unity.Jobs;
 using UnityEngine;
 using Unity.Entities;
@@ -18,8 +19,7 @@ namespace ECS_SpaceShooterDemo
             public EntityBoundMinMaxData minMaxData;
         }
 
-        [Inject]
-        DestroyEntityDataGroup destroyEntityDataGroup;
+        ComponentGroup destroyEntityDataGroup;
 
         [Inject]
         [ReadOnly]
@@ -67,7 +67,10 @@ namespace ECS_SpaceShooterDemo
         protected override void OnCreateManager()
         {
             base.OnCreateManager();
-
+            
+            destroyEntityDataGroup = GetComponentGroup(typeof(DestroyEntityData));
+            
+            
             allClearCellsJobHandleArray = new JobHandle[cellEntityTypeDictionaryArray.Length];
 
             for (int i = 0; i < cellEntityTypeDictionaryArray.Length; i++)
@@ -339,6 +342,18 @@ namespace ECS_SpaceShooterDemo
         {
             UnityEngine.Profiling.Profiler.BeginSample("System Init");
 
+
+            EntityArray destroyEntityArray = destroyEntityDataGroup.GetEntityArray();
+         
+            if (destroyEntityArray.Length == 0)
+            {
+                return inputDeps;
+            }
+            
+            Entity destroyEntity = destroyEntityArray[0];
+            ComponentDataFromEntity<DestroyEntityData> destroyEntityDataFromEntity = GetComponentDataFromEntity<DestroyEntityData>();        
+            DestroyEntityData destroyEntityData = destroyEntityDataFromEntity[destroyEntity];
+            
             currentCellDictionary++;
             if(currentCellDictionary >= cellEntityTypeDictionaryArray.Length)
             {
@@ -482,19 +497,19 @@ namespace ECS_SpaceShooterDemo
 
             JobHandle previousCollisionJobHandle = new JobHandle();
 
-            previousCollisionJobHandle = scheduleCollisionJob(EntityTypeData.EntityType.Asteroid, EntityTypeData.EntityType.PlayerBolt, previousCollisionJobHandle);            
-            previousCollisionJobHandle = scheduleCollisionJob(EntityTypeData.EntityType.Asteroid, EntityTypeData.EntityType.EnemyShip, previousCollisionJobHandle);
-            previousCollisionJobHandle = scheduleCollisionJob(EntityTypeData.EntityType.Asteroid, EntityTypeData.EntityType.AllyShip, previousCollisionJobHandle);
+            previousCollisionJobHandle = scheduleCollisionJob(EntityTypeData.EntityType.Asteroid, EntityTypeData.EntityType.PlayerBolt, destroyEntityData, previousCollisionJobHandle);            
+            previousCollisionJobHandle = scheduleCollisionJob(EntityTypeData.EntityType.Asteroid, EntityTypeData.EntityType.EnemyShip, destroyEntityData, previousCollisionJobHandle);
+            previousCollisionJobHandle = scheduleCollisionJob(EntityTypeData.EntityType.Asteroid, EntityTypeData.EntityType.AllyShip, destroyEntityData, previousCollisionJobHandle);
             
-            previousCollisionJobHandle = scheduleCollisionJob(EntityTypeData.EntityType.EnemyShip, EntityTypeData.EntityType.AllyBolt, previousCollisionJobHandle);
-            previousCollisionJobHandle = scheduleCollisionJob(EntityTypeData.EntityType.EnemyShip, EntityTypeData.EntityType.PlayerBolt, previousCollisionJobHandle);
-            previousCollisionJobHandle = scheduleCollisionJob(EntityTypeData.EntityType.EnemyShip, EntityTypeData.EntityType.AllyShip, previousCollisionJobHandle);
+            previousCollisionJobHandle = scheduleCollisionJob(EntityTypeData.EntityType.EnemyShip, EntityTypeData.EntityType.AllyBolt, destroyEntityData, previousCollisionJobHandle);
+            previousCollisionJobHandle = scheduleCollisionJob(EntityTypeData.EntityType.EnemyShip, EntityTypeData.EntityType.PlayerBolt, destroyEntityData, previousCollisionJobHandle);
+            previousCollisionJobHandle = scheduleCollisionJob(EntityTypeData.EntityType.EnemyShip, EntityTypeData.EntityType.AllyShip, destroyEntityData, previousCollisionJobHandle);
             
-            previousCollisionJobHandle = scheduleCollisionJob(EntityTypeData.EntityType.AllyShip, EntityTypeData.EntityType.EnemyBolt, previousCollisionJobHandle);
+            previousCollisionJobHandle = scheduleCollisionJob(EntityTypeData.EntityType.AllyShip, EntityTypeData.EntityType.EnemyBolt, destroyEntityData, previousCollisionJobHandle);
 
-            previousCollisionJobHandle = scheduleCollisionJob(EntityTypeData.EntityType.PlayerShip, EntityTypeData.EntityType.Asteroid, previousCollisionJobHandle);
-            previousCollisionJobHandle = scheduleCollisionJob(EntityTypeData.EntityType.PlayerShip, EntityTypeData.EntityType.EnemyBolt, previousCollisionJobHandle);
-            previousCollisionJobHandle = scheduleCollisionJob(EntityTypeData.EntityType.PlayerShip, EntityTypeData.EntityType.EnemyShip, previousCollisionJobHandle);
+            previousCollisionJobHandle = scheduleCollisionJob(EntityTypeData.EntityType.PlayerShip, EntityTypeData.EntityType.Asteroid, destroyEntityData, previousCollisionJobHandle);
+            previousCollisionJobHandle = scheduleCollisionJob(EntityTypeData.EntityType.PlayerShip, EntityTypeData.EntityType.EnemyBolt, destroyEntityData, previousCollisionJobHandle);
+            previousCollisionJobHandle = scheduleCollisionJob(EntityTypeData.EntityType.PlayerShip, EntityTypeData.EntityType.EnemyShip, destroyEntityData, previousCollisionJobHandle);
 
 
             UnityEngine.Profiling.Profiler.EndSample();
@@ -541,6 +556,7 @@ namespace ECS_SpaceShooterDemo
 
         JobHandle scheduleCollisionJob(EntityTypeData.EntityType entityTypeToCheck,
                                   EntityTypeData.EntityType entityTypeToCheckWith,
+                                  DestroyEntityData destroyEntityData,
                                   JobHandle jobDependencies)
         {
             JobHandle collisionDetectJobHandle = new JobHandle();
@@ -548,14 +564,13 @@ namespace ECS_SpaceShooterDemo
             if (entityTypeList.Contains(entityTypeToCheck)
                 && entityTypeList.Contains(entityTypeToCheckWith))
             {
-
                 CollisionDetectJob collisionDetectJob = new CollisionDetectJob
                 {
                     entityArray = subsetEntityDictionary[entityTypeToCheck],
                     entityBoundMinMaxData = subsetMinMaxDataDictionary[entityTypeToCheck],
                     boundCells = cellEntityTypeDictionary[entityTypeToCheckWith],
                     cellSizes = cellSizeEntityDictionary[entityTypeToCheckWith],
-                    collidedEntityQueue = destroyEntityDataGroup.destroyEntityData[0].entityCollisionQueueConcurrent,
+                    collidedEntityQueue = destroyEntityData.entityCollisionQueueConcurrent,
                 };
 
 

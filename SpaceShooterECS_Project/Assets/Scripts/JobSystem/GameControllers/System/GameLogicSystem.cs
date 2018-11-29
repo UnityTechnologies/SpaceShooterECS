@@ -24,8 +24,7 @@ namespace ECS_SpaceShooterDemo
         [Inject]
         PlayerGroup playerGroup;
 
-        [Inject]
-        UIEntityDataGroup uiDataGroup;
+        ComponentGroup uiDataGroup;
 
         private Entity gameplaySpawnerEntity;
         private NativeList<Entity> backGroundSpawnerNativeList = new NativeList<Entity>(100, Allocator.Persistent);
@@ -39,6 +38,8 @@ namespace ECS_SpaceShooterDemo
         {
             base.OnCreateManager();
 
+            uiDataGroup = GetComponentGroup(typeof(UIData));
+            
             //This function will call MonoBehaviourECSBridge.Instance, this will work because this system is created during the OnEnable of the MonoBehaviourECSBridge gameobject component
             RestartGame();
         }
@@ -188,10 +189,13 @@ namespace ECS_SpaceShooterDemo
             //If we deleted or created entities we will need to update our injected component group
             UpdateInjectedComponentGroups();
 
-            UIData tmpUIData = uiDataGroup.uiEntityData[0];
+            EntityArray uiEntityDataArray = uiDataGroup.GetEntityArray();
+            
+            UIData tmpUIData = GetComponentDataFromEntity<UIData>()[uiEntityDataArray[0]];
             tmpUIData.gameOver = gameOver ? 1 : 0;
             tmpUIData.restart = restart ? 1 : 0;
-            uiDataGroup.uiEntityData[0] = tmpUIData;
+           
+            EntityManager.SetComponentData(uiEntityDataArray[0], tmpUIData);
 
         }
     }
