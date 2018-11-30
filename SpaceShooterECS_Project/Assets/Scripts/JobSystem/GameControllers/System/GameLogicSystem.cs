@@ -13,17 +13,7 @@ namespace ECS_SpaceShooterDemo
     [UpdateAfter(typeof(DestroyEntitySystem))]
     public class GameLogicSystem : GameControllerComponentSystem
     {
-        struct PlayerGroup
-        {
-            [ReadOnly] public ComponentDataArray<PlayerMoveData> playerMoveData; //Use PlayerMoveData as a tag, only player entities have it
-            [ReadOnly] public ComponentDataArray<Position> playerPosition;
-            [ReadOnly] public EntityArray entities;
-
-            public readonly int Length; //required variable
-        }
-        [Inject]
-        PlayerGroup playerGroup;
-
+        private ComponentGroup playerGroup;
         ComponentGroup uiDataGroup;
 
         private Entity gameplaySpawnerEntity;
@@ -38,6 +28,7 @@ namespace ECS_SpaceShooterDemo
         {
             base.OnCreateManager();
 
+            playerGroup = GetComponentGroup(typeof(PlayerMoveData)); //Use PlayerMoveData as a tag, only player entities have it
             uiDataGroup = GetComponentGroup(typeof(UIData));
             
             //This function will call MonoBehaviourECSBridge.Instance, this will work because this system is created during the OnEnable of the MonoBehaviourECSBridge gameobject component
@@ -78,14 +69,15 @@ namespace ECS_SpaceShooterDemo
             restart = false;
             timeSinceGameOver = 0.0f;
 
-            //Spawn player 1
+            EntityArray currentPlayerEntities = playerGroup.GetEntityArray();
+            
             Entity newPlayer = EntityManager.Instantiate(MonoBehaviourECSBridge.Instance.playerEntityPrefab);
 
             float3 forwardDirection = new float3(0.0f, 0.0f, 1.0f);
             
             Position newPosition = new Position()
             {
-                Value = MonoBehaviourECSBridge.Instance.playerStartPosition[playerGroup.Length].position,
+                Value = MonoBehaviourECSBridge.Instance.playerStartPosition[currentPlayerEntities.Length].position,
             };
             EntityManager.SetComponentData<Position>(newPlayer, newPosition);
 
@@ -119,7 +111,6 @@ namespace ECS_SpaceShooterDemo
 
         protected override void OnUpdate()
         {
-
             if (Input.GetKeyDown(KeyCode.UpArrow) || Input.GetKeyDown(KeyCode.KeypadPlus))
             {
                 MonoBehaviourECSBridge.Instance.amountOfBackgroundSpawner++;
@@ -153,7 +144,8 @@ namespace ECS_SpaceShooterDemo
             UpdateInjectedComponentGroups();
 
             //gameplay logic
-            if (playerGroup.Length == 0)
+            EntityArray currentPlayerEntities = playerGroup.GetEntityArray();
+            if (currentPlayerEntities.Length == 0)
             {
                 if (!gameOver)
                 {
@@ -180,10 +172,6 @@ namespace ECS_SpaceShooterDemo
                         RestartGame();
                     }
                 }
-            }
-            else
-            {
-                MonoBehaviourECSBridge.Instance.playerPosition = playerGroup.playerPosition[0].Value;
             }
 
             //If we deleted or created entities we will need to update our injected component group

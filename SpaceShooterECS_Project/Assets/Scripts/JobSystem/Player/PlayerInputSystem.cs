@@ -22,7 +22,7 @@ namespace ECS_SpaceShooterDemo
         
         protected override void OnUpdate()
         {
-            ArchetypeChunkComponentType<PlayerInputData> playerInputDataRO = GetArchetypeChunkComponentType<PlayerInputData>(false);
+            ArchetypeChunkComponentType<PlayerInputData> playerInputDataRW = GetArchetypeChunkComponentType<PlayerInputData>(false);
             
             NativeArray<ArchetypeChunk> playerInputDataChunk = playerInputDataGroup.CreateArchetypeChunkArray(Allocator.TempJob);
             if (playerInputDataChunk.Length == 0)
@@ -36,7 +36,7 @@ namespace ECS_SpaceShooterDemo
                 ArchetypeChunk chunk = playerInputDataChunk[chunkIndex];
                 int dataCount = chunk.Count;
                 
-                NativeArray<PlayerInputData> playerInputDataArray = chunk.GetNativeArray(playerInputDataRO);
+                NativeArray<PlayerInputData> playerInputDataArray = chunk.GetNativeArray(playerInputDataRW);
 
                 for (int dataIndex = 0; dataIndex < dataCount; dataIndex++)
                 {

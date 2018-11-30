@@ -53,12 +53,12 @@ namespace ECS_SpaceShooterDemo
         [Header("Game Camera")]
         public Camera gameCamera;
 
-        private Vector3 _playerPosition = Vector3.zero;
+/*        private Vector3 _playerPosition = Vector3.zero;
         public Vector3 playerPosition
         {
             get; set;
         }
-
+*/
 
         EntityManager entityManager;
 

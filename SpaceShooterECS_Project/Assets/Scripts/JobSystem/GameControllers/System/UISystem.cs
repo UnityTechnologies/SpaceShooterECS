@@ -17,15 +17,6 @@ namespace ECS_SpaceShooterDemo
     {
         private Entity dataEntity;
 
-        struct EntityGroup
-        {
-            [ReadOnly] public EntityArray entities;
-
-            public readonly int Length; //required variable
-        }
-        [Inject]
-        EntityGroup entityGroup;
-
         ComponentGroup entityDataGroup = null;
         List<EntityTypeData> uniqueEntityTypes = new List<EntityTypeData>(10);
 
@@ -56,9 +47,10 @@ namespace ECS_SpaceShooterDemo
 
         protected override void OnUpdate()
         {
+            NativeArray<Entity> allEntities = EntityManager.GetAllEntities();
             UIData uiData = EntityManager.GetComponentData<UIData>(dataEntity);
 
-            MonoBehaviourECSBridge.Instance.entitiesCountText.text = "Entities Count: " + entityGroup.Length.ToString();
+            MonoBehaviourECSBridge.Instance.entitiesCountText.text = "Entities Count: " + allEntities.Length.ToString();
 
             MonoBehaviourECSBridge.Instance.jobBatchCountText.text = "Job Batch Count (/10000): "
                                                                + MonoBehaviourECSBridge.Instance.jobBatchCountPerTenThousand.ToString() + " ( [ / ] ) ";

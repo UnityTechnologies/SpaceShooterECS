@@ -12,17 +12,9 @@ namespace ECS_SpaceShooterDemo
     [UpdateAfter(typeof(DestroyEntitySystem))]
     public class SpawnerSystem : GameControllerComponentSystem
     {
-        struct SpawnerDataGroup
-        {
-            public ComponentDataArray<SpawnerPositionData> spawnerPositionDataArray;
-            public ComponentDataArray<SpawnerHazardData> spawnerHazardDataArray;
-            public ComponentDataArray<SpawnerSpawnData> spawnerSpawnDataArray;
-
-            public readonly int Length; //required variable
-        }
-
-        [Inject] SpawnerDataGroup spawnerDataGroup;
-
+        private ComponentGroup spawnerDataGroup;
+        
+        
         struct SpawnerSpawnInfo
         {
             public float spawnYPosition;
@@ -34,19 +26,19 @@ namespace ECS_SpaceShooterDemo
 
         private Unity.Mathematics.Random randomGenerator;
 
-
-
         protected override void OnCreateManager()
         {
             base.OnCreateManager();
 
+            spawnerDataGroup = GetComponentGroup(typeof(SpawnerPositionData), typeof(SpawnerHazardData),
+                typeof(SpawnerSpawnData));
+            
             //to seed our randomGenerator, we randomly fill a byte array, then convert it to uint32
             byte[] randomBytes = new byte[4];
             new System.Random().NextBytes(randomBytes);
             uint randomGeneratorSeed = System.BitConverter.ToUInt32(randomBytes, 0);
                         
-            randomGenerator = new Unity.Mathematics.Random(randomGeneratorSeed);
-            
+            randomGenerator = new Unity.Mathematics.Random(randomGeneratorSeed);           
             spawnerSpawnInfoList = new NativeList<SpawnerSpawnInfo>(1000, Allocator.Persistent);
         }
 
@@ -59,40 +51,68 @@ namespace ECS_SpaceShooterDemo
 
         protected override void OnUpdate()
         {
+            ArchetypeChunkComponentType<SpawnerPositionData> spawnerPositionDataRO = GetArchetypeChunkComponentType<SpawnerPositionData>(true);
+            ArchetypeChunkComponentType<SpawnerHazardData> spawnerHazardDataRO = GetArchetypeChunkComponentType<SpawnerHazardData>(true);
+            ArchetypeChunkComponentType<SpawnerSpawnData> spawnerSpawnDataRW = GetArchetypeChunkComponentType<SpawnerSpawnData>(false);
+            
+            
+            NativeArray<ArchetypeChunk> spawnerDataChunkArray = spawnerDataGroup.CreateArchetypeChunkArray(Allocator.TempJob);
+            if (spawnerDataChunkArray.Length == 0)
+            {
+                spawnerDataChunkArray.Dispose();
+                return;
+            }
+
             //Go over all our spawners and figure out if any new entity need to be spawned
             //Add the spawning info to spawnerSpawnInfoList 
-            for (int i = 0; i < spawnerDataGroup.Length; i++)
+            for (int chunkIndex = 0; chunkIndex < spawnerDataChunkArray.Length; chunkIndex++)
             {
-                SpawnerPositionData spawnerPositionData = spawnerDataGroup.spawnerPositionDataArray[i];
-                SpawnerHazardData spawnerHazardData = spawnerDataGroup.spawnerHazardDataArray[i];
-                SpawnerSpawnData spawnerSpawnData = spawnerDataGroup.spawnerSpawnDataArray[i];
+                ArchetypeChunk chunk = spawnerDataChunkArray[chunkIndex];
+                int dataCount = chunk.Count;
 
-                if (spawnerHazardData.hazardIndexArrayLength == 0)
+                NativeArray<SpawnerPositionData> spawnerPositionDataArray = chunk.GetNativeArray(spawnerPositionDataRO);
+                NativeArray<SpawnerHazardData> spawnerHazardDataArray = chunk.GetNativeArray(spawnerHazardDataRO);
+                NativeArray<SpawnerSpawnData> spawnerSpawnDataArray = chunk.GetNativeArray(spawnerSpawnDataRW);
+
+                for (int dataIndex = 0; dataIndex < dataCount; dataIndex++)
                 {
-                    continue;
-                }
+                    SpawnerPositionData spawnerPositionData = spawnerPositionDataArray[dataIndex];
+                    SpawnerHazardData spawnerHazardData = spawnerHazardDataArray[dataIndex];
+                    SpawnerSpawnData spawnerSpawnData = spawnerSpawnDataArray[dataIndex];
 
-                spawnerSpawnData.timeSinceLastSpawn += Time.deltaTime;
-
-                while (spawnerSpawnData.timeSinceLastSpawn >= spawnerSpawnData.spawnDelay)
-                {
-                    spawnerSpawnData.timeSinceLastSpawn -= spawnerSpawnData.spawnDelay;
-                    float yPositionSpawn = spawnerPositionData.position.y;
-
-                    //Get a random index to spawn, the range depend on the amount of hazards we set in the editor
-                    int hazardToSpawnIndex = randomGenerator.NextInt(0, spawnerHazardData.hazardIndexArrayLength);
-
-                    SpawnerSpawnInfo spawnInfo = new SpawnerSpawnInfo
+                    if (spawnerHazardData.hazardIndexArrayLength == 0)
                     {
-                        spawnYPosition = yPositionSpawn,
-                        hazardIndexToSpawn = hazardToSpawnIndex,
-                        isBackgroundSpawn = spawnerHazardData.isBackgroundSpawner,
-                    };
+                        continue;
+                    }
 
-                    spawnerSpawnInfoList.Add(spawnInfo);
+                    spawnerSpawnData.timeSinceLastSpawn += Time.deltaTime;
+
+                    while (spawnerSpawnData.timeSinceLastSpawn >= spawnerSpawnData.spawnDelay)
+                    {
+                        spawnerSpawnData.timeSinceLastSpawn -= spawnerSpawnData.spawnDelay;
+                        float yPositionSpawn = spawnerPositionData.position.y;
+
+                        //Get a random index to spawn, the range depend on the amount of hazards we set in the editor
+                        int hazardToSpawnIndex =
+                            randomGenerator.NextInt(0, spawnerHazardData.hazardIndexArrayLength);
+
+                        SpawnerSpawnInfo spawnInfo = new SpawnerSpawnInfo
+                        {
+                            spawnYPosition = yPositionSpawn,
+                            hazardIndexToSpawn = hazardToSpawnIndex,
+                            isBackgroundSpawn = spawnerHazardData.isBackgroundSpawner,
+                        };
+
+                        spawnerSpawnInfoList.Add(spawnInfo);
+                    }
+
+                    spawnerSpawnDataArray[dataIndex] = spawnerSpawnData;
+                    
                 }
-                spawnerDataGroup.spawnerSpawnDataArray[i] = spawnerSpawnData;
             }
+            
+            spawnerDataChunkArray.Dispose();
+            
 
             float3 cameraPosition = MonoBehaviourECSBridge.Instance.gameCamera.transform.position;
 
