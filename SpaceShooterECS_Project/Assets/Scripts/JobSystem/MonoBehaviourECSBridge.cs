@@ -4,6 +4,7 @@ using Unity.Entities;
 using System;
 using System.Linq;
 using System.Collections.Generic;
+using System.Reflection;
 
 namespace ECS_SpaceShooterDemo
 {
@@ -80,9 +81,21 @@ namespace ECS_SpaceShooterDemo
 
         void CreateGameSystems()
         {
-            foreach (var ass in AppDomain.CurrentDomain.GetAssemblies())
+            IEnumerable<Type> allTypes;
+            foreach (var assembly in AppDomain.CurrentDomain.GetAssemblies())
             {
-                var allTypes = ass.GetTypes();
+                try
+                {
+                    allTypes = assembly.GetTypes();
+
+                }
+                catch (ReflectionTypeLoadException e)
+                {
+                    allTypes = e.Types.Where(t => t != null);
+                    Debug.LogWarning($"MonoBehaviourECSBridge failed loading assembly: {(assembly.IsDynamic ? assembly.ToString() : assembly.Location)}");
+                }
+                
+                
 
                 // Create all ComponentSystem
                 var gameControllerComponentSystems = allTypes.Where(t => t.IsSubclassOf(typeof(GameControllerComponentSystem)) && !t.IsAbstract && !t.ContainsGenericParameters);
