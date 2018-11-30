@@ -84,9 +84,9 @@ namespace ECS_SpaceShooterDemo
             BoltSpawnerEntityData boltSpawnerEntityData = GetComponentDataFromEntity<BoltSpawnerEntityData>()[boltSpawnerEntityDataArray[0]];
          
             ArchetypeChunkEntityType entityTypeRO = GetArchetypeChunkEntityType();
-            ArchetypeChunkComponentType<PlayerInputData> playerInputDataRO = GetArchetypeChunkComponentType<PlayerInputData>(false);
-            ArchetypeChunkComponentType<PlayerMoveData> playerMoveDataRO = GetArchetypeChunkComponentType<PlayerMoveData>(false);
-            ArchetypeChunkComponentType<Position> positionRO = GetArchetypeChunkComponentType<Position>(false);
+            ArchetypeChunkComponentType<PlayerInputData> playerInputDataRO = GetArchetypeChunkComponentType<PlayerInputData>(true);
+            ArchetypeChunkComponentType<PlayerMoveData> playerMoveDataRO = GetArchetypeChunkComponentType<PlayerMoveData>(true);
+            ArchetypeChunkComponentType<Position> positionRO = GetArchetypeChunkComponentType<Position>(true);
             ArchetypeChunkComponentType<PlayerSpawnBoltData> playerSpawnBoltDataRW = GetArchetypeChunkComponentType<PlayerSpawnBoltData>(false);
 
             
