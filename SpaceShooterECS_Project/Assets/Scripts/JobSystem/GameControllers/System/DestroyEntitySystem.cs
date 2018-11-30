@@ -23,8 +23,7 @@ namespace ECS_SpaceShooterDemo
 
         //entity used by other systems to find the previous queues
         private Entity dataEntity;
-        private bool dataEntityCreated = false;
-        
+       
         //struct containing information needed to run some logic after an entity is destroyed
         struct InfoForLogicAfterDestroy
         {
