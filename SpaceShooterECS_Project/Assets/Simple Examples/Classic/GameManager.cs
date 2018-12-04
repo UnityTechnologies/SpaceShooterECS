@@ -53,8 +53,8 @@ namespace Shooter.Classic
         {
             for (int i = 0; i < amount; i++)
             {
-                float xVal = Random.Range(leftBound, rightBound);
-                float zVal = Random.Range(0f, 10f);
+                float xVal = UnityEngine.Random.Range(leftBound, rightBound);
+                float zVal = UnityEngine.Random.Range(0f, 10f);
 
                 Vector3 pos = new Vector3(xVal, 0f, zVal + topBound);
                 Quaternion rot = Quaternion.Euler(0f, 180f, 0f);

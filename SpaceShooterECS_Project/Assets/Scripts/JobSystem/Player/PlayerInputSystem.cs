@@ -7,49 +7,71 @@ using Unity.Collections;
 
 namespace ECS_SpaceShooterDemo
 {
+    [UpdateBefore(typeof(PlayerMoveSystem))]
     public class PlayerInputSystem : GameControllerComponentSystem
-    {
-        struct PlayerInputDataGroup
+    {       
+        ComponentGroup playerInputDataGroup;
+
+        
+        protected override void OnCreateManager()
         {
-            public ComponentDataArray<PlayerInputData> playerInputDataArray;
-
-            public SubtractiveComponent<EntityPrefabData> prefabData;
-            public readonly int Length; //required variable
+            base.OnCreateManager();
+            playerInputDataGroup = GetComponentGroup(typeof(PlayerInputData)); 
         }
-        [Inject]
-        PlayerInputDataGroup playerInputDataGroup;
-
+        
+        
         protected override void OnUpdate()
         {
-            for(int i = 0; i < playerInputDataGroup.Length; i++)
+            ArchetypeChunkComponentType<PlayerInputData> playerInputDataRW = GetArchetypeChunkComponentType<PlayerInputData>(false);
+            
+            NativeArray<ArchetypeChunk> playerInputDataChunk = playerInputDataGroup.CreateArchetypeChunkArray(Allocator.TempJob);
+            if (playerInputDataChunk.Length == 0)
             {
-                PlayerInputData playerInputData = playerInputDataGroup.playerInputDataArray[i];
+                playerInputDataChunk.Dispose();
+                return;
+            }
 
-                float moveHorizontal = 0.0f;
-                float moveVertical = 0.0f;
-                bool fireButtonPressed = false;
-                switch (playerInputData.playerID)
+            for (int chunkIndex = 0; chunkIndex < playerInputDataChunk.Length; chunkIndex++)
+            {
+                ArchetypeChunk chunk = playerInputDataChunk[chunkIndex];
+                int dataCount = chunk.Count;
+                
+                NativeArray<PlayerInputData> playerInputDataArray = chunk.GetNativeArray(playerInputDataRW);
+
+                for (int dataIndex = 0; dataIndex < dataCount; dataIndex++)
                 {
-                    case 0:
+                    PlayerInputData playerInputData = playerInputDataArray[dataIndex];
+
+                    float moveHorizontal = 0.0f;
+                    float moveVertical = 0.0f;
+                    bool fireButtonPressed = false;
+                    switch (playerInputData.playerID)
                     {
-                        moveHorizontal = Input.GetAxis("Horizontal");
-                        moveVertical = Input.GetAxis("Vertical");
-                        fireButtonPressed = Input.GetButton("Fire1");
+                        case 0:
+                        {
+                            moveHorizontal = Input.GetAxis("Horizontal");
+                            moveVertical = Input.GetAxis("Vertical");
+                            fireButtonPressed = Input.GetButton("Fire1");
+                        }
+                            break;
+                        default:
+                        {
+                            Debug.LogError("Addional players not supported for now");
+                        }
+                            break;
                     }
-                    break;
-                    default:
-                    {
-                        Debug.LogError("Addional players not supported for now");
-                    }
-                    break;
+
+                    playerInputData.inputMovementDirection.x = moveHorizontal;
+                    playerInputData.inputMovementDirection.z = moveVertical;
+                    playerInputData.fireButtonPressed = fireButtonPressed ? 1 : 0;
+
+                    playerInputDataArray[dataIndex] = playerInputData;
+
                 }
 
-                playerInputData.inputMovementDirection.x = moveHorizontal;
-                playerInputData.inputMovementDirection.z = moveVertical;
-                playerInputData.fireButtonPressed = fireButtonPressed ? 1 : 0;
-
-                playerInputDataGroup.playerInputDataArray[i] = playerInputData;
             }
+            
+            playerInputDataChunk.Dispose();
         }
     }
 }

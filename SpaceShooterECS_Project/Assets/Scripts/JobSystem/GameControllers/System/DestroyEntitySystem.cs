@@ -5,7 +5,8 @@ using UnityEngine;
 using Unity.Entities;
 using Unity.Mathematics;
 using Unity.Collections;
-using UnityEngine.ECS.Rendering;
+using Unity.Transforms;
+
 
 namespace ECS_SpaceShooterDemo
 {
@@ -14,8 +15,7 @@ namespace ECS_SpaceShooterDemo
     [UpdateBefore(typeof(UnityEngine.Experimental.PlayerLoop.PreUpdate))]
     public class DestroyEntitySystem : GameControllerComponentSystem
     {
-        [Inject]
-        UIEntityDataGroup uiEntityDataGroup;
+        ComponentGroup uiEntityDataGroup;
 
         //queues that will be filled by other systems to tell this system what entities to delete
         public NativeQueue<Entity> entityOutOfBoundQueue;
@@ -23,70 +23,70 @@ namespace ECS_SpaceShooterDemo
 
         //entity used by other systems to find the previous queues
         private Entity dataEntity;
-
+       
         //struct containing information needed to run some logic after an entity is destroyed
         struct InfoForLogicAfterDestroy
         {
             public EntityTypeData entityTypeData;
-            public EntityInstanceRenderData renderData;
+            public Position entityPosition;
         }
 
         //Function do some logic after entities have been destroyed (in this case spawn particles)
         void DestroyLogic(NativeList<InfoForLogicAfterDestroy> infoLogicTmpDataArray)
         {
-            for(int i = 0; i < infoLogicTmpDataArray.Length; i++)
+            const float nonPriorityVFXMaxDistance = -50.0f;
+            const float priorityVFXMaxDistance = -23.0f;
+            for (int i = 0; i < infoLogicTmpDataArray.Length; i++)
             {
                 InfoForLogicAfterDestroy infoLogic = infoLogicTmpDataArray[i];
+                float3 infoLogicPosition = infoLogic.entityPosition.Value;
+
                 switch(infoLogic.entityTypeData.entityType)
                 {
                     case EntityTypeData.EntityType.Asteroid:
-                        {
-                            if (MonoBehaviourECSBridge.Instance.asteroidExplosion != null)
+                        {                        
+                            if (infoLogicPosition.y > nonPriorityVFXMaxDistance && MonoBehaviourECSBridge.Instance.asteroidExplosion != null)
                             {
-                                //Fow now only spawn particles close to the player position, this is a normal game object spawn and is slow
-                                if(infoLogic.renderData.position.y > -23)
-                                {
-                                    GameObject.Instantiate(MonoBehaviourECSBridge.Instance.asteroidExplosion, infoLogic.renderData.position, Quaternion.LookRotation(infoLogic.renderData.forward, infoLogic.renderData.up));
-                                }
-                            }
-                        }
-                        break;
-                    case EntityTypeData.EntityType.Bolt:
-                        {
+                                bool priorityParticle = infoLogicPosition.y > priorityVFXMaxDistance ? true : false;
 
+                                MonoBehaviourECSBridge.Instance.asteroidExplosion.SpawnParticle(priorityParticle,
+                                                                                                infoLogicPosition,
+                                                                                                Quaternion.identity);
+
+                            }
                         }
                         break;
                     case EntityTypeData.EntityType.EnemyShip:
                         {
-                            if (MonoBehaviourECSBridge.Instance.enemyExplosion != null)
+                            if (infoLogicPosition.y > nonPriorityVFXMaxDistance && MonoBehaviourECSBridge.Instance.enemyExplosion != null)
                             {
-                                //Fow now only spawn particles close to the player position, this is a normal game object spawn and is slow
-                                if (infoLogic.renderData.position.y > -23)
-                                {
-                                    GameObject.Instantiate(MonoBehaviourECSBridge.Instance.enemyExplosion, infoLogic.renderData.position, Quaternion.LookRotation(infoLogic.renderData.forward, infoLogic.renderData.up));
-                                }
+                                bool priorityParticle = infoLogicPosition.y > priorityVFXMaxDistance ? true : false;
+
+                                MonoBehaviourECSBridge.Instance.enemyExplosion.SpawnParticle(priorityParticle,
+                                                                                                infoLogicPosition,
+                                                                                                Quaternion.identity);
                             }
                         }
                         break;
                     case EntityTypeData.EntityType.AllyShip:
                         {
-                            if (MonoBehaviourECSBridge.Instance.allyExplosion != null)
+                            if (infoLogicPosition.y > nonPriorityVFXMaxDistance && MonoBehaviourECSBridge.Instance.allyExplosion != null)
                             {
-                                //Fow now only spawn particles close to the player position, this is a normal game object spawn and is slow
-                                if (infoLogic.renderData.position.y > -23)
-                                {
-                                    GameObject.Instantiate(MonoBehaviourECSBridge.Instance.allyExplosion, infoLogic.renderData.position, Quaternion.LookRotation(infoLogic.renderData.forward, infoLogic.renderData.up));
-                                }
+                                bool priorityParticle = infoLogicPosition.y > priorityVFXMaxDistance ? true : false;
+
+                                MonoBehaviourECSBridge.Instance.allyExplosion.SpawnParticle(priorityParticle,
+                                                                                            infoLogicPosition,
+                                                                                            Quaternion.identity);
                             }
                         }
                         break;
                     case EntityTypeData.EntityType.PlayerShip:
                         {
-                            if(MonoBehaviourECSBridge.Instance.playerExplosion != null)
+                            if (MonoBehaviourECSBridge.Instance.playerExplosion != null)
                             {
-                                GameObject.Instantiate(MonoBehaviourECSBridge.Instance.playerExplosion, infoLogic.renderData.position, Quaternion.LookRotation(infoLogic.renderData.forward, infoLogic.renderData.up));
-                                // Large shake to indicate player has died
-                                CameraController.Instance.OverrideWithShake(CameraController.SHAKE_SIZE.Large);
+                                MonoBehaviourECSBridge.Instance.playerExplosion.SpawnParticle(true,
+                                                                                                infoLogicPosition,
+                                                                                              Quaternion.identity);
                             }
                         }
                         break;
@@ -112,29 +112,35 @@ namespace ECS_SpaceShooterDemo
             }
         }
 
-        protected override void OnCreateManager(int capacity)
+        protected override void OnCreateManager()
         {
-            base.OnCreateManager(capacity);
+            base.OnCreateManager();
 
+            uiEntityDataGroup = GetComponentGroup(typeof(UIData));
+            
             //Allocate our queues
             entityOutOfBoundQueue = new NativeQueue<Entity>(Allocator.Persistent);
             entityCollisionQueue = new NativeQueue<Entity>(Allocator.Persistent);
-
+          
             //Create the entity that will contain our queues
             dataEntity = EntityManager.CreateEntity();
 
             //Create the compoenent data used to store our queues, other systems will look for that component data type
             DestroyEntityData data = new DestroyEntityData();
-            data.entityOutOfBoundQueueConcurrent = entityOutOfBoundQueue;
-            data.entityCollisionQueueConcurrent = entityCollisionQueue;
+            data.entityOutOfBoundQueueConcurrent = entityOutOfBoundQueue.ToConcurrent();
+            data.entityCollisionQueueConcurrent = entityCollisionQueue.ToConcurrent();
 
             //Add that struct to the entity
-            EntityManager.AddComponentData(dataEntity, data);
+            EntityManager.AddComponentData(dataEntity, data);            
         }
 
         protected override void OnDestroyManager()
         {
-            EntityManager.DestroyEntity(dataEntity);
+            if (EntityManager.Exists(dataEntity))
+            {
+                EntityManager.DestroyEntity(dataEntity);
+            }
+            
             DisposeOfEntityQueue(entityOutOfBoundQueue);
             DisposeOfEntityQueue(entityCollisionQueue);
 
@@ -142,7 +148,7 @@ namespace ECS_SpaceShooterDemo
         }
 
         //currently ExclusiveEntityTransaction is not supported by Burst
-        //[BurstCompileAttribute(Accuracy.Med, Support.Relaxed)]
+        //[BurstCompile]
         struct DestroyEntityJob : IJob
         {
             //We use an ExclusiveEntityTransaction to have access to the entity manager
@@ -166,7 +172,7 @@ namespace ECS_SpaceShooterDemo
         }
 
         //currently ExclusiveEntityTransaction is not supported by Burst
-        //[BurstCompileAttribute(Accuracy.Med, Support.Relaxed)]
+        //[BurstCompile]
         struct DestroyEntityWithLogicJob : IJob
         {
             //We use an ExclusiveEntityTransaction to have access to the entity manager
@@ -205,26 +211,22 @@ namespace ECS_SpaceShooterDemo
                                 {
                                     //Those type of entity will require some additional logic after destruction,
                                     //create the info needed and add it to the list
-                                    EntityInstanceRenderData entityToDestroyRenderData = entityTransaction.GetComponentData<EntityInstanceRenderData>(entityToDestroy);
+                                    Position entityToDestroyPosition = entityTransaction.GetComponentData<Position>(entityToDestroy);
                                     InfoForLogicAfterDestroy newInfo = new InfoForLogicAfterDestroy
                                     {
                                         entityTypeData = entityToDestroyTypeData,
-                                        renderData = entityToDestroyRenderData,
+                                        entityPosition = entityToDestroyPosition,
                                     };
                                     infoForLogic.Add(newInfo);
                                 }
                                 break;
-                            case EntityTypeData.EntityType.Bolt:
+                            case EntityTypeData.EntityType.PlayerBolt:
                                 {
                                     //Player bolts are only destroyed when they collided with enemies or obstacle,
                                     // add to the score in that case 
-                                    BoltTypeData boltTypeData = entityTransaction.GetSharedComponentData<BoltTypeData>(entityToDestroy);
-                                    if (boltTypeData.boltType == BoltTypeData.BoltType.PlayerBolt)
-                                    {
-                                        UIData uiData = uiDataArray[0];
-                                        uiData.score += scoreValue;
-                                        uiDataArray[0] = uiData;
-                                    }
+                                    UIData uiData = uiDataArray[0];
+                                    uiData.score += scoreValue;
+                                    uiDataArray[0] = uiData;
                                 }
                                 break;
                         }
@@ -238,17 +240,19 @@ namespace ECS_SpaceShooterDemo
         protected override void OnUpdate()
         {
             EntityManager.CompleteAllJobs();
-
+          
             //We need to call this after EntityManager.CompleteAllJobs so that our uiEntityDataGroup is updated
             UpdateInjectedComponentGroups();
 
             //Copy our current UI data in a tmp array
-            UIData testData = uiEntityDataGroup.uiEntityData[0];
-            NativeArray<UIData> uiTmpDataArray = new NativeArray<UIData>(1, Allocator.Temp);
+            Entity uiEntity = uiEntityDataGroup.GetEntityArray()[0];
+            UIData testData = GetComponentDataFromEntity<UIData>()[uiEntity];
+
+            NativeArray<UIData> uiTmpDataArray = new NativeArray<UIData>(1, Allocator.TempJob);
             uiTmpDataArray[0] = testData;
 
             //Create a tmp list to contain the data needed to do some logic after entities destruction
-            NativeList<InfoForLogicAfterDestroy> infoLogicTmpDataList = new NativeList<InfoForLogicAfterDestroy>(entityCollisionQueue.Count, Allocator.Temp);
+            NativeList<InfoForLogicAfterDestroy> infoLogicTmpDataList = new NativeList<InfoForLogicAfterDestroy>(entityCollisionQueue.Count, Allocator.TempJob);
 
             //Tell the EntityManager that we will start doing entity work only via an ExclusiveEntityTransaction (that can be passed to a job)
             ExclusiveEntityTransaction exclusiveEntityTransaction = EntityManager.BeginExclusiveEntityTransaction();
@@ -300,13 +304,14 @@ namespace ECS_SpaceShooterDemo
             UpdateInjectedComponentGroups();
 
             //Copy back the UI data with the update score 
-            testData = uiTmpDataArray[0];
-            uiEntityDataGroup.uiEntityData[0] = testData;
+            testData = uiTmpDataArray[0];     
+            EntityManager.SetComponentData(uiEntity, testData);          
+            
+
 
             //dispose of our tmp array/list
             uiTmpDataArray.Dispose();
             infoLogicTmpDataList.Dispose();
         }
     }
-
 }

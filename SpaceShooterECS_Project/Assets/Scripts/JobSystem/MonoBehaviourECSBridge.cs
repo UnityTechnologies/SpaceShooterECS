@@ -4,6 +4,7 @@ using Unity.Entities;
 using System;
 using System.Linq;
 using System.Collections.Generic;
+using System.Reflection;
 
 namespace ECS_SpaceShooterDemo
 {
@@ -40,23 +41,18 @@ namespace ECS_SpaceShooterDemo
         public Text gameOverText;
 
         [Header("VFX")]
-        public GameObject asteroidExplosion;
-        public GameObject enemyExplosion;
-        public GameObject enemyBolt;
-        public GameObject allyExplosion;
+        public ParticleSystemManager asteroidExplosion;
+        public ParticleSystemManager enemyExplosion;
+        public ParticleSystemManager allyExplosion;
+        public ParticleSystemManager playerExplosion;
+
+        [Header("Bolts Prefab")]
         public GameObject allyBolt;
-        public GameObject playerExplosion;
+        public GameObject enemyBolt;
         public GameObject playerBolt;
 
         [Header("Game Camera")]
         public Camera gameCamera;
-
-        private Vector3 _playerPosition;
-        public Vector3 playerPosition
-        {
-            get; set;
-        }
-
 
         EntityManager entityManager;
 
@@ -85,9 +81,21 @@ namespace ECS_SpaceShooterDemo
 
         void CreateGameSystems()
         {
-            foreach (var ass in AppDomain.CurrentDomain.GetAssemblies())
+            IEnumerable<Type> allTypes;
+            foreach (var assembly in AppDomain.CurrentDomain.GetAssemblies())
             {
-                var allTypes = ass.GetTypes();
+                try
+                {
+                    allTypes = assembly.GetTypes();
+
+                }
+                catch (ReflectionTypeLoadException e)
+                {
+                    allTypes = e.Types.Where(t => t != null);
+                    Debug.LogWarning($"MonoBehaviourECSBridge failed loading assembly: {(assembly.IsDynamic ? assembly.ToString() : assembly.Location)}");
+                }
+                
+                
 
                 // Create all ComponentSystem
                 var gameControllerComponentSystems = allTypes.Where(t => t.IsSubclassOf(typeof(GameControllerComponentSystem)) && !t.IsAbstract && !t.ContainsGenericParameters);
@@ -134,7 +142,7 @@ namespace ECS_SpaceShooterDemo
             for (int i = 0; i < hazards.Length; i++)
             {
                 Entity newPrefabEntity = entityManager.Instantiate(hazards[i]);
-                entityManager.AddComponentData<EntityPrefabData>(newPrefabEntity, new EntityPrefabData());
+                entityManager.AddComponentData<Prefab>(newPrefabEntity, new Prefab());
 
                 gameplayHazardIndexToPrefabs.Add(newPrefabEntity);
             }
@@ -142,7 +150,7 @@ namespace ECS_SpaceShooterDemo
             for (int i = 0; i < hazardsBackground.Length; i++)
             {
                 Entity newPrefabEntity = entityManager.Instantiate(hazardsBackground[i]);
-                entityManager.AddComponentData<EntityPrefabData>(newPrefabEntity, new EntityPrefabData());
+                entityManager.AddComponentData<Prefab>(newPrefabEntity, new Prefab());
 
                 backgroundHazardIndexToPrefabs.Add(newPrefabEntity);
             }

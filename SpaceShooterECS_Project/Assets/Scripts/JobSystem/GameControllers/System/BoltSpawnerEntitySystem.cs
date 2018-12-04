@@ -5,6 +5,7 @@ using UnityEngine;
 using Unity.Entities;
 using Unity.Mathematics;
 using Unity.Collections;
+using Unity.Transforms;
 
 namespace ECS_SpaceShooterDemo
 {
@@ -14,12 +15,14 @@ namespace ECS_SpaceShooterDemo
     public class BoltSpawnerEntitySystem : GameControllerJobComponentSystem
     {
         //queues that will be used by other system to tell this system to spawn new bolts
-        public NativeQueue<Entity> aiBoltSpawnQueue;
+        public NativeQueue<Entity> enemyBoltSpawnQueue;
+        public NativeQueue<Entity> allyBoltSpawnQueue;
         public NativeQueue<Entity> playerBoltSpawnQueue;
 
         //List used to store entities we need to spawn bolts from
         //Filled each frame from the previous queues after testing if the entities are still valid
-        private NativeList<Entity> aiBoltSpawnList;
+        private NativeList<Entity> enemyBoltSpawnList;
+        private NativeList<Entity> allyBoltSpawnList;
         private NativeList<Entity> playerBoltSpawnList;
 
         //entity used by other systems to find the previous queues
@@ -31,7 +34,7 @@ namespace ECS_SpaceShooterDemo
         Entity prefabPlayerBolt;
 
         //Jobs that will go over all newly spawned bolt and set their BoltMoveData values
-        [BurstCompileAttribute(Accuracy.Med, Support.Relaxed)]
+        [BurstCompile]
         struct SetAIBoltMoveDataJob : IJobParallelFor
         {
             //List of entities we spawned from
@@ -51,61 +54,77 @@ namespace ECS_SpaceShooterDemo
 
             //We need to tell the safety system to allow us to write in a parallel for job
             //This is safe in this case because we are accessing unique entity in each execute call (newly spawned entities)
+            [NativeDisableParallelForRestriction] 
+            public ComponentDataFromEntity<BoltMoveData> boltMoveDataFromEntity;
             [NativeDisableParallelForRestriction]
-            public ComponentDataFromEntity<BoltMoveData> boldMoveDataFromEntity;
-
+            public ComponentDataFromEntity<Position> boltPositionFromEntity;
+            [NativeDisableParallelForRestriction]
+            public ComponentDataFromEntity<Rotation> boltRotationFromEntity;
+            
             public void Execute(int index)
             {
                 //Get the spawning information from the entity we spawned from
                 AISpawnBoltData spawnBoltData = aiSpawnBoltDataFromEntity[spawningFromEntityList[index]];
-                //Get our BoltMoveData
-                BoltMoveData boldMoveData = boldMoveDataFromEntity[spawnedBoltEntityArray[index]];
+                //Get our Bolt position/rotation
+                BoltMoveData boltMoveData = boltMoveDataFromEntity[spawnedBoltEntityArray[index]];
+                Position boltPosition = boltPositionFromEntity[spawnedBoltEntityArray[index]];
+                Rotation boltRotation = boltRotationFromEntity[spawnedBoltEntityArray[index]];
 
-                //Set our initial BoltMoveData values
-                boldMoveData.position = spawnBoltData.spawnPosition;
-                boldMoveData.forwardDirection = spawnBoltData.spawnDirection;
+                //Set our initial values
+                boltMoveData.forwardDirection = spawnBoltData.spawnDirection;
+                boltPosition.Value = spawnBoltData.spawnPosition;
+                boltRotation.Value = quaternion.LookRotation(new float3(0, -1, 0), new float3(0, 0, 1));
 
-                boldMoveDataFromEntity[spawnedBoltEntityArray[index]] = boldMoveData;
+                boltMoveDataFromEntity[spawnedBoltEntityArray[index]] = boltMoveData;
+                boltPositionFromEntity[spawnedBoltEntityArray[index]] = boltPosition;
+                boltRotationFromEntity[spawnedBoltEntityArray[index]] = boltRotation;
             }
         }
-        protected override void OnCreateManager(int capacity)
+        protected override void OnCreateManager()
         {
-            base.OnCreateManager(capacity);
+            base.OnCreateManager();
 
             //Create our queues to hold entities to spawn bolt from
-            aiBoltSpawnQueue = new NativeQueue<Entity>(Allocator.Persistent);
+            enemyBoltSpawnQueue = new NativeQueue<Entity>(Allocator.Persistent);
+            allyBoltSpawnQueue = new NativeQueue<Entity>(Allocator.Persistent);
             playerBoltSpawnQueue = new NativeQueue<Entity>(Allocator.Persistent);
 
-            aiBoltSpawnList = new NativeList<Entity>(100000, Allocator.Persistent);
+            enemyBoltSpawnList = new NativeList<Entity>(100000, Allocator.Persistent);
+            allyBoltSpawnList = new NativeList<Entity>(100000, Allocator.Persistent);
             playerBoltSpawnList = new NativeList<Entity>(100000, Allocator.Persistent);
 
             //Create the entitie that holds our queue, one way of making them accessible to other systems 
             BoltSpawnerEntityData data = new BoltSpawnerEntityData();
-            data.aiBoltSpawnQueueConcurrent = aiBoltSpawnQueue;
-            data.playerBoltSpawnQueueConcurrent = playerBoltSpawnQueue;
+            data.enemyBoltSpawnQueueConcurrent = enemyBoltSpawnQueue.ToConcurrent();
+            data.allyBoltSpawnQueueConcurrent = allyBoltSpawnQueue.ToConcurrent();
+            data.playerBoltSpawnQueueConcurrent = playerBoltSpawnQueue.ToConcurrent();
 
             dataEntity = EntityManager.CreateEntity();
             EntityManager.AddComponentData(dataEntity, data);
 
             //Create entities that we will use as "prefab" for our bolts
-            //Add the EntityPrefabData IComponentData to make sure those entities are not picked up by systems
+            //Add the Prefab IComponentData to make sure those entities are not picked up by systems
             prefabEnemyBolt = EntityManager.Instantiate(MonoBehaviourECSBridge.Instance.enemyBolt);
-            EntityManager.AddComponentData<EntityPrefabData>(prefabEnemyBolt, new EntityPrefabData());
-
+            EntityManager.AddComponentData<Prefab>(prefabEnemyBolt, new Prefab());
+            
             prefabAllyBolt = EntityManager.Instantiate(MonoBehaviourECSBridge.Instance.allyBolt);
-            EntityManager.AddComponentData<EntityPrefabData>(prefabAllyBolt, new EntityPrefabData());
+            EntityManager.AddComponentData<Prefab>(prefabAllyBolt, new Prefab());
 
             prefabPlayerBolt = EntityManager.Instantiate(MonoBehaviourECSBridge.Instance.playerBolt);
-            EntityManager.AddComponentData<EntityPrefabData>(prefabPlayerBolt, new EntityPrefabData());
+            EntityManager.AddComponentData<Prefab>(prefabPlayerBolt, new Prefab());
         }
 
         protected override void OnDestroyManager()
         {
+            EntityManager.CompleteAllJobs();
+
             //Dispose of queues and lists we allocated
-            aiBoltSpawnQueue.Dispose();
+            enemyBoltSpawnQueue.Dispose();
+            allyBoltSpawnQueue.Dispose();
             playerBoltSpawnQueue.Dispose();
 
-            aiBoltSpawnList.Dispose();
+            enemyBoltSpawnList.Dispose();
+            allyBoltSpawnList.Dispose();
             playerBoltSpawnList.Dispose();
 
             //Make sure we destroy entities we are managing
@@ -120,7 +139,10 @@ namespace ECS_SpaceShooterDemo
 
 
 
-        JobHandle SpawnBoltFromEntityList(NativeList<Entity> entityList, Entity prefabEntity, bool isboltFromPlayerList, JobHandle jobDepency)
+        JobHandle SpawnBoltFromEntityList(NativeList<Entity> entityList, 
+                                          NativeArray<Entity> newSpawnedBoltEntityArray,
+                                          bool isboltFromPlayerList, 
+                                          JobHandle jobDepency)
         {
             JobHandle jobDepencyToReturn = jobDepency;
 
@@ -130,16 +152,7 @@ namespace ECS_SpaceShooterDemo
             }
 
             UnityEngine.Profiling.Profiler.BeginSample("SpawnBoltFromEntityList");
-
-            Entity boltCopy = EntityManager.Instantiate(prefabEntity);
-            EntityManager.RemoveComponent<EntityPrefabData>(boltCopy);
-
-            //Allocate the amount of entities we need in one shot
-            NativeArray<Entity> newSpawnedBoltEntityArray = new NativeArray<Entity>(entityList.Length, Allocator.TempJob);
-            EntityManager.Instantiate(boltCopy, newSpawnedBoltEntityArray);
-
-            EntityManager.DestroyEntity(boltCopy);
-
+         
             //If the bolts are from players we just set the BoltMoveData directly, they are not enough generated to warrant creating a job
             if (isboltFromPlayerList)
             {
@@ -148,11 +161,23 @@ namespace ECS_SpaceShooterDemo
                 for (int i = 0; i < entityList.Length; i++)
                 {
                     PlayerSpawnBoltData spawnBoltData = EntityManager.GetComponentData<PlayerSpawnBoltData>(entityList[i]);
-                    BoltMoveData moveData = EntityManager.GetComponentData<BoltMoveData>(newSpawnedBoltEntityArray[i]);
-                    moveData.position = spawnBoltData.spawnPosition;
-                    moveData.forwardDirection = spawnBoltData.spawnDirection;
+                    
+                    Position newPosition = new Position()
+                    {
+                        Value = spawnBoltData.spawnPosition,
+                    };
+                    EntityManager.SetComponentData<Position>(newSpawnedBoltEntityArray[i], newPosition);
 
-                    EntityManager.SetComponentData<BoltMoveData>(newSpawnedBoltEntityArray[i], moveData);
+                    Rotation newRotation = new Rotation()
+                    {
+                        Value = quaternion.LookRotation(new float3(0, -1, 0), new float3(0, 0, 1)),
+                    };
+                    EntityManager.SetComponentData<Rotation>(newSpawnedBoltEntityArray[i], newRotation);
+                    
+                    BoltMoveData boltMoveData = EntityManager.GetComponentData<BoltMoveData>(newSpawnedBoltEntityArray[i]);
+                    boltMoveData.forwardDirection = spawnBoltData.spawnDirection;
+                    EntityManager.SetComponentData<BoltMoveData>(newSpawnedBoltEntityArray[i], boltMoveData);
+
                 }
 
                 newSpawnedBoltEntityArray.Dispose();
@@ -166,7 +191,9 @@ namespace ECS_SpaceShooterDemo
                     spawningFromEntityList = entityList,
                     spawnedBoltEntityArray = newSpawnedBoltEntityArray,
                     aiSpawnBoltDataFromEntity = GetComponentDataFromEntity<AISpawnBoltData>(),
-                    boldMoveDataFromEntity = GetComponentDataFromEntity<BoltMoveData>(),
+                    boltMoveDataFromEntity = GetComponentDataFromEntity<BoltMoveData>(),
+                    boltPositionFromEntity = GetComponentDataFromEntity<Position>(),
+                    boltRotationFromEntity = GetComponentDataFromEntity<Rotation>(),
                 };
 
                 jobDepencyToReturn = setAiBoldMoveDataJob.Schedule(newSpawnedBoltEntityArray.Length,
@@ -218,17 +245,61 @@ namespace ECS_SpaceShooterDemo
         protected override JobHandle OnUpdate(JobHandle inputDeps)
         {
             playerBoltSpawnList.Clear();
-            aiBoltSpawnList.Clear();
-
+            allyBoltSpawnList.Clear();
+            enemyBoltSpawnList.Clear();
+            
+            
             //Move our entities from a queue to a list after testing if they still exist
-            MoveEntityinQueueToList(aiBoltSpawnQueue, aiBoltSpawnList);
+            MoveEntityinQueueToList(enemyBoltSpawnQueue, enemyBoltSpawnList);
+            MoveEntityinQueueToList(allyBoltSpawnQueue, allyBoltSpawnList);
             MoveEntityinQueueToList(playerBoltSpawnQueue, playerBoltSpawnList);
 
             //Spawn the bolts from the lists, return a jobHandle (if no job are spawned, return the dependecy passed in parameter)
-            JobHandle spawnBoltJobHandle;
-            spawnBoltJobHandle = SpawnBoltFromEntityList(playerBoltSpawnList, prefabPlayerBolt, true, inputDeps);
-            spawnBoltJobHandle = SpawnBoltFromEntityList(aiBoltSpawnList, prefabEnemyBolt, false, spawnBoltJobHandle);
+            JobHandle spawnBoltJobHandle = new JobHandle();
+            
+            //Allocate the amount of entities we need in one shot
+            NativeArray<Entity> playerEntityArray = new NativeArray<Entity>();
+            NativeArray<Entity> enemyEntityArray = new NativeArray<Entity>();
+            NativeArray<Entity> allyEntityArray = new NativeArray<Entity>();
+            
+            if (playerBoltSpawnList.Length > 0)
+            {
+                playerEntityArray = new NativeArray<Entity>(playerBoltSpawnList.Length, Allocator.TempJob);
+                EntityManager.Instantiate(prefabPlayerBolt, playerEntityArray);
+            }
 
+            if (enemyBoltSpawnList.Length > 0)
+            {
+                enemyEntityArray = new NativeArray<Entity>(enemyBoltSpawnList.Length, Allocator.TempJob);
+                EntityManager.Instantiate(prefabEnemyBolt, enemyEntityArray);    
+            }
+
+            if (allyBoltSpawnList.Length > 0)
+            {
+                allyEntityArray = new NativeArray<Entity>(allyBoltSpawnList.Length, Allocator.TempJob);
+                EntityManager.Instantiate(prefabAllyBolt, allyEntityArray);                   
+            }
+
+            JobHandle spawnJobDependency = inputDeps;
+            
+            if (playerEntityArray.IsCreated)
+            {
+                spawnBoltJobHandle = SpawnBoltFromEntityList(playerBoltSpawnList, playerEntityArray, true, spawnJobDependency);
+                spawnJobDependency = JobHandle.CombineDependencies(spawnBoltJobHandle, spawnJobDependency);
+            }
+
+            if (enemyEntityArray.IsCreated)
+            {
+                spawnBoltJobHandle = SpawnBoltFromEntityList(enemyBoltSpawnList, enemyEntityArray, false, spawnJobDependency);
+                spawnJobDependency = JobHandle.CombineDependencies(spawnBoltJobHandle, spawnJobDependency);
+            }
+
+            if (allyEntityArray.IsCreated)
+            {
+                spawnBoltJobHandle = SpawnBoltFromEntityList(allyBoltSpawnList, allyEntityArray, false, spawnJobDependency);
+                spawnJobDependency = JobHandle.CombineDependencies(spawnBoltJobHandle, spawnJobDependency);
+            }
+            
             return spawnBoltJobHandle;
         }
     }

@@ -1,12 +1,11 @@
 ﻿using System.Collections;
 using Unity.Burst;
-using Unity.Burst;
 using Unity.Jobs;
 using UnityEngine;
 using Unity.Entities;
 using Unity.Mathematics;
 using Unity.Collections;
-using UnityEngine.ECS.Rendering;
+
 using System.Collections.Generic;
 
 namespace ECS_SpaceShooterDemo
@@ -18,25 +17,16 @@ namespace ECS_SpaceShooterDemo
     {
         private Entity dataEntity;
 
-        struct EntityGroup
-        {
-            [ReadOnly] public EntityArray entities;
-
-            public readonly int Length; //required variable
-        }
-        [Inject]
-        EntityGroup entityGroup;
-
         ComponentGroup entityDataGroup = null;
         List<EntityTypeData> uniqueEntityTypes = new List<EntityTypeData>(10);
 
         float deltaTime = 0;
 
-        protected override void OnCreateManager(int capacity)
+        protected override void OnCreateManager()
         {
-            base.OnCreateManager(capacity);
+            base.OnCreateManager();
 
-            entityDataGroup = GetComponentGroup(ComponentType.Subtractive(typeof(EntityPrefabData)), typeof(EntityTypeData));
+            entityDataGroup = GetComponentGroup(typeof(EntityTypeData));
 
 
             dataEntity = EntityManager.CreateEntity();
@@ -57,9 +47,10 @@ namespace ECS_SpaceShooterDemo
 
         protected override void OnUpdate()
         {
+            NativeArray<Entity> allEntities = EntityManager.GetAllEntities();
             UIData uiData = EntityManager.GetComponentData<UIData>(dataEntity);
 
-            MonoBehaviourECSBridge.Instance.entitiesCountText.text = "Entities Count: " + entityGroup.Length.ToString();
+            MonoBehaviourECSBridge.Instance.entitiesCountText.text = "Entities Count: " + allEntities.Length.ToString();
 
             MonoBehaviourECSBridge.Instance.jobBatchCountText.text = "Job Batch Count (/10000): "
                                                                + MonoBehaviourECSBridge.Instance.jobBatchCountPerTenThousand.ToString() + " ( [ / ] ) ";
@@ -68,7 +59,7 @@ namespace ECS_SpaceShooterDemo
 
 
             uniqueEntityTypes.Clear();
-            EntityManager.GetAllUniqueSharedComponentDatas(uniqueEntityTypes);
+            EntityManager.GetAllUniqueSharedComponentData(uniqueEntityTypes);
             for (int i = 0; i != uniqueEntityTypes.Count; i++)
             {
                 switch (uniqueEntityTypes[i].entityType)

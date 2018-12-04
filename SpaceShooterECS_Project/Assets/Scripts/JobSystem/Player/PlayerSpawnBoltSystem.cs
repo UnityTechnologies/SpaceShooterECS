@@ -4,81 +4,124 @@ using UnityEngine;
 using Unity.Entities;
 using Unity.Mathematics;
 using Unity.Collections;
-using UnityEngine.ECS.Rendering;
+using Unity.Entities.Editor;
+using Unity.Transforms;
+
 
 namespace ECS_SpaceShooterDemo
 {
     [UpdateAfter(typeof(PlayerMoveSystem))]
-    [UpdateBefore(typeof(ECS_SpaceShooterDemo.EntityToInstanceRendererTransform))]
     public class PlayerSpawnBoltSystem : GameControllerJobComponentSystem
     {
-        [Inject]
-        BoltSpawnerEntityDataGroup boltSpawnerEntityDataGroup;
-
-
-        struct PlayerMoveSpawnBoltDataGroup
-        {
-            public EntityArray entityArray;
-            public ComponentDataArray<PlayerInputData> playerInputDataArray;
-            public ComponentDataArray<PlayerMoveData> playerMoveDataArray;
-            public ComponentDataArray<PlayerSpawnBoltData> playerSpawnBoltDataArray;
-
-            public SubtractiveComponent<EntityPrefabData> prefabData;
-            public readonly int Length; //required variable
-        }
-        [Inject]
-        PlayerMoveSpawnBoltDataGroup playerMoveSpawnBoltDataGroup;
-
-        [BurstCompileAttribute(Accuracy.Med, Support.Relaxed)]
+        ComponentGroup boltSpawnerEntityDataGroup;     
+        ComponentGroup playerSpawnBoltDataGroup;
+        
+        [BurstCompile]
         struct PlayerSpawnBoltJob : IJobParallelFor
-        {
-            [ReadOnly]
-            public EntityArray entityArray;
-            [ReadOnly]
-            public ComponentDataArray<PlayerInputData> playerInputDataArray;
-            [ReadOnly]
-            public ComponentDataArray<PlayerMoveData> playerMoveDataArray;
-
-            public ComponentDataArray<PlayerSpawnBoltData> playerSpawnBoltDataArray;
+        {            
+            [DeallocateOnJobCompletion] [ReadOnly] public NativeArray<ArchetypeChunk> chunks;
+            
+            [ReadOnly] public ArchetypeChunkEntityType entityTypeRO;
+            [ReadOnly] public ArchetypeChunkComponentType<PlayerInputData> playerInputDataRO;
+            [ReadOnly] public ArchetypeChunkComponentType<PlayerMoveData> playerMoveDataRO;
+            [ReadOnly] public ArchetypeChunkComponentType<Position> positionRO;
+            public ArchetypeChunkComponentType<PlayerSpawnBoltData> playerSpawnBoltDataRW;
+            
             public NativeQueue<Entity>.Concurrent spawnBoltEntityQueue;
-
+            
             public float currentTime;
 
-            public void Execute(int index)
+            public void Execute(int chunkIndex)
             {
-                PlayerInputData playerInputData = playerInputDataArray[index];
-                PlayerMoveData playerMoveData = playerMoveDataArray[index];
-                PlayerSpawnBoltData playerSpawnBoltData = playerSpawnBoltDataArray[index];
+                ArchetypeChunk chunk = chunks[chunkIndex];
+                int dataCount = chunk.Count;
 
-                if(playerInputData.fireButtonPressed == 1 && currentTime >= playerSpawnBoltData.nextFireTime)
+                NativeArray<Entity> playerEntityArray = chunk.GetNativeArray(entityTypeRO);
+                NativeArray<PlayerInputData> playerInputDataArray = chunk.GetNativeArray(playerInputDataRO);
+                NativeArray<PlayerMoveData> playerMoveDataArray = chunk.GetNativeArray(playerMoveDataRO);
+                NativeArray<Position> positionDataArray = chunk.GetNativeArray(positionRO);         
+                NativeArray<PlayerSpawnBoltData> playerSpawnBoltDataArray = chunk.GetNativeArray(playerSpawnBoltDataRW);
+
+                for (int dataIndex = 0; dataIndex < dataCount; dataIndex++)
                 {
-                    playerSpawnBoltData.nextFireTime = currentTime + playerSpawnBoltData.fireRate;
-                    spawnBoltEntityQueue.Enqueue(entityArray[index]);
+                    Entity playerEntity = playerEntityArray[dataIndex];
+                    PlayerInputData playerInputData = playerInputDataArray[dataIndex];
+                    PlayerMoveData playerMoveData = playerMoveDataArray[dataIndex];
+                    Position playerPosition = positionDataArray[dataIndex];
+                    PlayerSpawnBoltData playerSpawnBoltData = playerSpawnBoltDataArray[dataIndex];
+
+                    if (playerInputData.fireButtonPressed == 1 && currentTime >= playerSpawnBoltData.nextFireTime)
+                    {
+                        playerSpawnBoltData.nextFireTime = currentTime + playerSpawnBoltData.fireRate;
+                        spawnBoltEntityQueue.Enqueue(playerEntity);
+                    }
+
+                    playerSpawnBoltData.spawnPosition =
+                        playerPosition.Value + (playerMoveData.forwardDirection * playerSpawnBoltData.offset);
+                    playerSpawnBoltData.spawnDirection = playerMoveData.forwardDirection;
+
+                    playerSpawnBoltDataArray[dataIndex] = playerSpawnBoltData;
                 }
-
-                playerSpawnBoltData.spawnPosition = playerMoveData.position + (playerMoveData.forwardDirection * playerSpawnBoltData.offset);
-                playerSpawnBoltData.spawnDirection = playerMoveData.forwardDirection;
-
-                playerSpawnBoltDataArray[index] = playerSpawnBoltData;
             }
         }
 
-        protected override JobHandle OnUpdate(JobHandle inputDeps)
+        protected override void OnCreateManager()
         {
+            base.OnCreateManager();
+
+            boltSpawnerEntityDataGroup = GetComponentGroup(typeof(BoltSpawnerEntityData)); 
+            playerSpawnBoltDataGroup = GetComponentGroup(typeof(PlayerInputData), typeof(PlayerMoveData), typeof(Position), typeof(PlayerSpawnBoltData));
+        }        
+        
+        protected override JobHandle OnUpdate(JobHandle inputDeps)
+        {                      
+            EntityArray boltSpawnerEntityDataArray = boltSpawnerEntityDataGroup.GetEntityArray();
+            if (boltSpawnerEntityDataArray.Length == 0)
+            {
+                return inputDeps;
+            }
+                
+            BoltSpawnerEntityData boltSpawnerEntityData = GetComponentDataFromEntity<BoltSpawnerEntityData>()[boltSpawnerEntityDataArray[0]];
+         
+            ArchetypeChunkEntityType entityTypeRO = GetArchetypeChunkEntityType();
+            ArchetypeChunkComponentType<PlayerInputData> playerInputDataRO = GetArchetypeChunkComponentType<PlayerInputData>(true);
+            ArchetypeChunkComponentType<PlayerMoveData> playerMoveDataRO = GetArchetypeChunkComponentType<PlayerMoveData>(true);
+            ArchetypeChunkComponentType<Position> positionRO = GetArchetypeChunkComponentType<Position>(true);
+            ArchetypeChunkComponentType<PlayerSpawnBoltData> playerSpawnBoltDataRW = GetArchetypeChunkComponentType<PlayerSpawnBoltData>(false);
+
+            
+            //CreateArchetypeChunkArray runs inside a job, we can use a job handle to make dependency on that job
+            //A NativeArray<ArchetypeChunk> is allocated with the correct size on the main thread and that's what is returned, we are responsible for de-allocating it (In this case using [DeallocateOnJobCompletion] in the move job)
+            //The job scheduled by CreateArchetypeChunkArray fill that array with correct chunk information
+            JobHandle createChunckArrayJobHandle = new JobHandle(); 
+            NativeArray<ArchetypeChunk> playerSpawnBoltDataChunks = playerSpawnBoltDataGroup.CreateArchetypeChunkArray(Allocator.TempJob, out createChunckArrayJobHandle);
+            
+            //Special case when our query return no chunk at all
+            if (playerSpawnBoltDataChunks.Length == 0)
+            {
+                createChunckArrayJobHandle.Complete();
+                playerSpawnBoltDataChunks.Dispose();
+                return inputDeps;
+            }
+            
+            //Make sure our movejob is dependent on the job filling the array has completed
+            JobHandle spawnJobDependency = JobHandle.CombineDependencies(inputDeps, createChunckArrayJobHandle);
+            
             PlayerSpawnBoltJob playerSpawnBoltJob = new PlayerSpawnBoltJob
             {
-                entityArray = playerMoveSpawnBoltDataGroup.entityArray,
-                playerInputDataArray = playerMoveSpawnBoltDataGroup.playerInputDataArray,
-                playerMoveDataArray = playerMoveSpawnBoltDataGroup.playerMoveDataArray,
-                playerSpawnBoltDataArray = playerMoveSpawnBoltDataGroup.playerSpawnBoltDataArray,
-                spawnBoltEntityQueue = boltSpawnerEntityDataGroup.boltSpawnerEntityData[0].playerBoltSpawnQueueConcurrent,
+                chunks = playerSpawnBoltDataChunks,
+                entityTypeRO = entityTypeRO,
+                playerInputDataRO = playerInputDataRO,
+                playerMoveDataRO = playerMoveDataRO,
+                positionRO = positionRO,
+                playerSpawnBoltDataRW = playerSpawnBoltDataRW,
+                spawnBoltEntityQueue = boltSpawnerEntityData.playerBoltSpawnQueueConcurrent,
                 currentTime = Time.time,
             };
 
-
-            return playerSpawnBoltJob.Schedule(playerMoveSpawnBoltDataGroup.Length,
-                                               MonoBehaviourECSBridge.Instance.GetJobBatchCount(playerMoveSpawnBoltDataGroup.Length),
-                                               inputDeps);
+            return playerSpawnBoltJob.Schedule(playerSpawnBoltDataChunks.Length,
+                MonoBehaviourECSBridge.Instance.GetJobBatchCount(playerSpawnBoltDataChunks.Length),
+                spawnJobDependency);  
         }
 
     }

@@ -38,8 +38,8 @@ namespace Shooter.ECSwithJobs
                 bottomBound = GameManager.GM.bottomBound,
                 deltaTime = Time.deltaTime
             };
-
-            JobHandle moveHandle = moveJob.Schedule(this, 64, inputDeps);
+      
+            JobHandle moveHandle = moveJob.Schedule(this, inputDeps);
 
             return moveHandle;
         }

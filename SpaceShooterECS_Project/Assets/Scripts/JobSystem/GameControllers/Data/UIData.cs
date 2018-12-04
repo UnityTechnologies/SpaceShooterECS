@@ -15,11 +15,4 @@ namespace ECS_SpaceShooterDemo
         public int gameOver;
         public int restart;
     }
-
-    struct UIEntityDataGroup
-    {
-        public ComponentDataArray<UIData> uiEntityData;
-        public readonly int Length;
-    }
-
 }

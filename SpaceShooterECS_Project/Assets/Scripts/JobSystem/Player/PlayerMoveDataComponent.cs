@@ -9,7 +9,6 @@ namespace ECS_SpaceShooterDemo
     [System.Serializable]
     public struct PlayerMoveData : IComponentData
     {
-        public float3 position;
         public float3 forwardDirection;
         public float3 rightDirection;
 

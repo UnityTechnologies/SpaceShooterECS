@@ -6,9 +6,16 @@
 **/fmod.log
 
 # =========================
+# IDE Files
+# =========================
+**/Assets/Plugins/Editor/JetBrains*
+
+
+# =========================
 # General Unity Files
 # =========================
 
+[Ll]ogs/
 [Ll]ibrary/
 [Tt]emp/
 [Oo]bj/
@@ -76,3 +83,5 @@ $RECYCLE.BIN/
 
 # Windows shortcuts
 *.lnk
+
+
