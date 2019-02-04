@@ -6,7 +6,6 @@ using UnityEngine;
 
 namespace Shooter.ECS
 {
-	
     public class MovementSystem : ComponentSystem 
 	{
 		ComponentGroup enemyGroup;
@@ -15,24 +14,26 @@ namespace Shooter.ECS
 		{
 			enemyGroup = GetComponentGroup(typeof(Position), typeof(Rotation), typeof(MoveSpeed));
 		}
-		//Right now we're stuck until the release gets updated.
+		
 		protected override void OnUpdate()
 		{
-			using (var enemies = enemyGroup.ToEntityArray())
-			{ }
-				for (int i = 0; i < enemies.Length; i++)
+			using (var enemies = enemyGroup.ToEntityArray(Allocator.TempJob))
+			{
+				foreach (var enemy in enemies)
 				{
-					Position position = enemies.positions[i];
-					Rotation rotation = enemies.rotations[i];
-					MoveSpeed speed = enemies.moveSpeeds[i];
+					Position position	= EntityManager.GetComponentData<Position>(enemy);
+					quaternion rotation = EntityManager.GetComponentData<Rotation>(enemy).Value;
+					float speed			= EntityManager.GetComponentData<MoveSpeed>(enemy).Value;
 
-					position.Value += Time.deltaTime * speed.Value * math.forward(rotation.Value);
+					position.Value += Time.deltaTime * speed * math.forward(rotation);
 
 					if (position.Value.z < GameManager.GM.bottomBound)
 						position.Value.z = GameManager.GM.topBound;
 
-					enemies.positions[i] = position;
+					EntityManager.SetComponentData(enemy, position);
 				}
+
+			}
 		}
     }
 }
